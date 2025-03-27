@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>GoTinka Travel Agency Dashboard</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFD166;
+            --success: #06D6A0;
+            --danger: #EF476F;
+            --warning: #FFD166;
+            --info: #118AB2;
+            --light: #f8f9fa;
+            --dark: #073B4C;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(to bottom, #073B4C, #118AB2);
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .sidebar-brand {
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand a {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .sidebar-brand a span {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu ul li {
+            padding: 0;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu ul li a {
+            padding: 15px 25px;
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            border-radius: 0 30px 30px 0;
+        }
+
+        .sidebar-menu ul li a:hover,
+        .sidebar-menu ul li.active a {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu ul li.active a {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-menu ul li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        .topbar {
+            background-color: #fff;
+            height: 70px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .toggle-sidebar {
+            font-size: 20px;
+            margin-right: 20px;
+            cursor: pointer;
+            display: none;
+            color: var(--dark);
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        .search-form {
+            position: relative;
+        }
+
+        .search-form input {
+            width: 100%;
+            height: 45px;
+            border-radius: 50px;
+            border: 1px solid #eaeaea;
+            padding: 0 20px;
+            padding-left: 45px;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s;
+        }
+
+        .search-form input:focus {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .search-form button {
+            background: transparent;
+            border: none;
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification {
+            margin-right: 25px;
+            position: relative;
+        }
+
+        .notification i {
+            font-size: 20px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .notification .badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            line-height: 1.2;
+        }
+
+        .user-info h6 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-info span {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header h2 {
+            font-size: 26px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dashboard-card {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card {
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.15), rgba(255,255,255,0));
+            z-index: 1;
+        }
+
+        .stat-card .icon {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card .content h4 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .stat-card .content p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+
+        .primary-card {
+            background: linear-gradient(45deg, var(--primary), #ff8c8c);
+        }
+
+        .success-card {
+            background: linear-gradient(45deg, var(--success), #68e6be);
+        }
+
+        .warning-card {
+            background: linear-gradient(45deg, var(--warning), #ffe380);
+        }
+
+        .info-card {
+            background: linear-gradient(45deg, var(--info), #17cfea);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .custom-table thead th {
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 15px;
+            color: var(--dark);
+            background-color: #f8f9fa;
+        }
+
+        .custom-table tbody tr {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .custom-table tbody tr:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-table tbody td {
+            border: none;
+            padding: 15px;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .custom-table tbody td:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        .custom-table tbody td:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .custom-table .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .custom-table .user-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        .custom-table .user-info {
+            line-height: 1.2;
+        }
+
+        .custom-table .user-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .custom-table .user-email {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .pending {
+            background-color: rgba(255, 209, 102, 0.15);
+            color: var(--warning);
+        }
+
+        .confirmed {
+            background-color: rgba(6, 214, 160, 0.15);
+            color: var(--success);
+        }
+
+        .cancelled {
+            background-color: rgba(239, 71, 111, 0.15);
+            color: var(--danger);
+        }
+
+        .processing {
+            background-color: rgba(17, 138, 178, 0.15);
+            color: var(--info);
+        }
+
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-view {
+            background-color: rgba(17, 138, 178, 0.1);
+            color: var(--info);
+        }
+
+        .btn-view:hover {
+            background-color: var(--info);
+            color: #fff;
+        }
+
+        .btn-edit {
+            background-color: rgba(255, 209, 102, 0.1);
+            color: var(--warning);
+        }
+
+        .btn-edit:hover {
+            background-color: var(--warning);
+            color: #fff;
+        }
+
+        .btn-delete {
+            background-color: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background-color: var(--danger);
+            color: #fff;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            border-radius: 50px;
+            padding: 8px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff5252;
+            border-color: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Trip cards */
+        .trip-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .trip-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .trip-info {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 15px;
+        }
+
+        .trip-route {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .location {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .trip-line {
+            flex-grow: 1;
+            position: relative;
+            height: 2px;
+            background-color: #ddd;
+            margin: 0 15px;
+        }
+
+        .trip-line::before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .trip-line::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        .trip-line i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .trip-dates {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 15px;
+            margin-top: 5px;
+        }
+
+        .trip-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .trip-details {
+            text-align: right;
+            margin-left: 20px;
+        }
+
+        .trip-id {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .trip-status.available {
+            color: var(--success);
+        }
+
+        .trip-status.limited {
+            color: var(--warning);
+        }
+
+        .trip-status.sold-out {
+            color: var(--danger);
+        }
+
+        .popular-destinations {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+
+        .destination-card {
+            flex: 0 0 calc(33.333% - 20px);
+            margin: 0 10px 20px;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .destination-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .destination-img {
+            height: 200px;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .destination-img::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0));
+        }
+
+        .destination-info {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            color: #fff;
+            z-index: 1;
+        }
+
+        .destination-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .destination-country {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .destination-price {
+            background-color: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 50px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 1199px) {
+            .destination-card {
+                flex: 0 0 calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+
+            .sidebar.active {
+                margin-left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .main-content.active {
+                margin-left: 250px;
+                width: calc(100% - 250px);
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .search-bar {
+                display: none;
+            }
+
+            .destination-card {
+                flex: 0 0 calc(100% - 20px);
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
+
+            .stat-card .content h4 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <a href="dashboard.html">GO<span>Tinka</span></a>
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <li class="active">
+                    <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="admin-users.html"><i class="fas fa-users"></i> Users</a>
+                </li>
+                <li>
+                    <a href="guide.html"><i class="fas fa-user-tie"></i> Guides</a>
+                </li>
+                <li>
+                    <a href="vehicle.html"><i class="fas fa-car"></i> Vehicles</a>
+                </li>
+                <li>
+                    <a href="packages.html"><i class="fas fa-car"></i> Packages</a>
+                </li>
+                <li>
+                    <a href="offers.html"><i class="fas fa-gift"></i>Offers </a>
+                </li>
+                <li>
+                    <a href="Payment.html"><i class="fas fa-credit-card"></i> Payment</a>
+                </li>
+                <li>
+                    <a href="Booking.html"><i class="fas fa-calendar-check"></i> Booking</a>
+                </li>
+                <li>
+                    <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                </li>
+                <li>
+                    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                </li>
+                <li>
+                    <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="search-bar">
+                <form class="search-form">
+                    <input type="text" placeholder="Search for destinations, bookings, customers...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            <div class="topbar-right">
+                <div class="notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">7</span>
+                </div>
+                <div class="user-profile">
+                    <img src="/api/placeholder/50/50" alt="placeholder">
+                    <div class="user-info">
+                        <h6>Sarah Johnson</h6>
+                        <span>Agency Manager</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h2>Dashboard</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="dashboard-card stat-card primary-card">
+                        <div class="content">
+                            <h4>5,287</h4>
+                            <p>Total Bookings</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-bookmark"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dashboard-card stat-card success-card">
+                        <div class="content">
+                            <h4>3,782</h4>
+                            <p>Active Customers</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dashboard-card stat-card warning-card">
+                        <div class="content">
+                            <h4>42</h4>
+                            <p>Active Packages</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-suitcase"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="dashboard-card stat-card info-card">
+                        <div class="content">
+                            <h4>$156,874</h4>
+                            <p>Monthly Revenue</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Recent Bookings -->
+                <div class="col-lg-8">
+                    <div class="dashboard-card">
+                        <h5 class="section-title">Recent Bookings</h5>
+                        <div class="table-responsive">
+                            <table class="table custom-table">
+                                <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Destination</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <img src="/api/placeholder/50/50" alt="placeholder" class="avatar">
+                                            <div class="user-info">
+                                                <div class="user-name">Michael Thompson</div>
+                                                <div class="user-email">michael@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Bali Explorer</td>
+                                    <td>Mar 28, 2025</td>
+                                    <td><span class="status confirmed">Confirmed</span></td>
+                                    <td>
+                                        <button class="btn btn-action btn-view" data-toggle="tooltip" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-edit" data-toggle="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-delete" data-toggle="tooltip" title="Cancel">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <img src="/api/placeholder/50/50" alt="placeholder" class="avatar">
+                                            <div class="user-info">
+                                                <div class="user-name">Jessica Williams</div>
+                                                <div class="user-email">jessica@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Paris Getaway</td>
+                                    <td>Apr 05, 2025</td>
+                                    <td><span class="status pending">Pending</span></td>
+                                    <td>
+                                        <button class="btn btn-action btn-view" data-toggle="tooltip" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-edit" data-toggle="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-delete" data-toggle="tooltip" title="Cancel">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <img src="/api/placeholder/50/50" alt="placeholder" class="avatar">
+                                            <div class="user-info">
+                                                <div class="user-name">Robert Johnson</div>
+                                                <div class="user-email">robert@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>African Safari</td>
+                                    <td>Apr 12, 2025</td>
+                                    <td><span class="status processing">Processing</span></td>
+                                    <td>
+                                        <button class="btn btn-action btn-view" data-toggle="tooltip" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-edit" data-toggle="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-delete" data-toggle="tooltip" title="Cancel">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <img src="/api/placeholder/50/50" alt="placeholder" class="avatar">
+                                            <div class="user-info">
+                                                <div class="user-name">David Wilson</div>
+                                                <div class="user-email">david@example.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Tokyo Adventure</td>
+                                    <td>Mar 25, 2025</td>
+                                    <td><span class="status cancelled">Cancelled</span></td>
+                                    <td>
+                                        <button class="btn btn-action btn-view" data-toggle="tooltip" title="View Details">
+                                            <i class="fas fa-eye">
+                                        </button>
+                                        <button class="btn btn-action btn-edit" data-toggle="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-action btn-delete" data-toggle="tooltip" title="Cancel">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Popular Tours -->
+                <div class="col-lg-4">
+                    <div class="dashboard-card">
+                        <h5 class="section-title">Upcoming Tours</h5>
+
+                        <div class="trip-card">
+                            <div class="trip-info">
+                                <div class="trip-route">
+                                    <div>
+                                        <div class="location">Paris</div>
+                                        <div class="trip-date">Apr 15, 2025</div>
+                                    </div>
+                                    <div class="trip-line">
+                                        <i class="fas fa-plane"></i>
+                                    </div>
+                                    <div>
+                                        <div class="location">Rome</div>
+                                        <div class="trip-date">Apr 22, 2025</div>
+                                    </div>
+                                </div>
+                                <div class="trip-details">
+                                    <div class="trip-id">TOUR-5478</div>
+                                    <div class="trip-status available">Available</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="trip-card">
+                            <div class="trip-info">
+                                <div class="trip-route">
+                                    <div>
+                                        <div class="location">New York</div>
+                                        <div class="trip-date">May 10, 2025</div>
+                                    </div>
+                                    <div class="trip-line">
+                                        <i class="fas fa-plane"></i>
+                                    </div>
+                                    <div>
+                                        <div class="location">Miami</div>
+                                        <div class="trip-date">May 17, 2025</div>
+                                    </div>
+                                </div>
+                                <div class="trip-details">
+                                    <div class="trip-id">TOUR-5496</div>
+                                    <div class="trip-status limited">Limited</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="trip-card">
+                            <div class="trip-info">
+                                <div class="trip-route">
+                                    <div>
+                                        <div class="location">Tokyo</div>
+                                        <div class="trip-date">Apr 28, 2025</div>
+                                    </div>
+                                    <div class="trip-line">
+                                        <i class="fas fa-plane"></i>
+                                    </div>
+                                    <div>
+                                        <div class="location">Kyoto</div>
+                                        <div class="trip-date">May 5, 2025</div>
+                                    </div>
+                                </div>
+                                <div class="trip-details">
+                                    <div class="trip-id">TOUR-5502</div>
+                                    <div class="trip-status sold-out">Sold Out</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Destinations -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="section-title mb-0">Popular Destinations</h5>
+                            <a href="destinations.html" class="btn btn-primary">View All</a>
+                        </div>
+                        <div class="popular-destinations">
+                            <div class="destination-card">
+                                <div class="destination-img" style="background-image: url('/api/placeholder/400/250');">
+                                    <div class="destination-price">From $899</div>
+                                </div>
+                                <div class="destination-info">
+                                    <div class="destination-name">Bali</div>
+                                    <div class="destination-country">Indonesia</div>
+                                </div>
+                            </div>
+                            <div class="destination-card">
+                                <div class="destination-img" style="background-image: url('/api/placeholder/400/250');">
+                                    <div class="destination-price">From $1,299</div>
+                                </div>
+                                <div class="destination-info">
+                                    <div class="destination-name">Santorini</div>
+                                    <div class="destination-country">Greece</div>
+                                </div>
+                            </div>
+                            <div class="destination-card">
+                                <div class="destination-img" style="background-image: url('/api/placeholder/400/250');">
+                                    <div class="destination-price">From $1,499</div>
+                                </div>
+                                <div class="destination-info">
+                                    <div class="destination-name">Tokyo</div>
+                                    <div class="destination-country">Japan</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Toggle sidebar
+        $('.toggle-sidebar').on('click', function() {
+            $('.sidebar').toggleClass('active');
+            $('.main-content').toggleClass('active');
+        });
+
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+</body>
+</html>

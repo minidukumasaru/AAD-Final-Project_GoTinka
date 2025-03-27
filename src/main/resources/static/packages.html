@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Package Details Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .bg-image {
+            background-image: url('https://www.example.com/your-image.jpg');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h3 {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            font-size: 16px;
+            padding: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transition: 0.3s;
+        }
+
+        .form-label {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            width: 80%;
+            margin-top: 40px;
+        }
+
+        .credit-card {
+            background: #2a2a3a;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 250px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .credit-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<div class="bg-image">
+    <div class="form-container">
+        <h3 class="text-white text-center">Package Details</h3>
+        <form id="packageForm">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="packageName" class="form-label">Package Name</label>
+                    <input type="text" class="form-control" id="packageName" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="destination" class="form-label">Destination</label>
+                    <input type="text" class="form-control" id="destination" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="price" class="form-label">Price (LKR)</label>
+                    <input type="number" class="form-control" id="price" step="0.01" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="duration" class="form-label">Duration (Days)</label>
+                    <input type="number" class="form-control" id="duration" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" rows="3" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="active">
+                    <label class="form-check-label" for="active">Active</label>
+                </div>
+            </div>
+
+            <input type="hidden" id="packageId">
+
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-success w-100">Save</button>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-danger w-100" onclick="deletePackage()">Delete</button>
+                </div>
+                <div class="col-md-4">
+                    <button type="button" class="btn btn-secondary w-100" onclick="clearForm()">Clear</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-container" id="packageList"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script>
+    let authToken = localStorage.getItem("jwt_token");
+
+    // Function to fill form when card is clicked
+    function fillForm(packageId, packageName, destination, price, description, duration, active) {
+        // Populate text input fields
+        $("#packageId").val(packageId);
+        $("#packageName").val(packageName);
+        $("#destination").val(destination);
+        $("#price").val(price);
+        $("#description").val(description);
+        $("#duration").val(duration);
+
+        // Set checkbox state based on active status
+        $("#active").prop('checked', active);
+    }
+
+    $("#packageForm").submit(function (event) {
+        event.preventDefault();
+
+        let packageData = {
+            packageId: $("#packageId").val(),
+            packageName: $("#packageName").val(),
+            destination: $("#destination").val(),
+            price: $("#price").val(),
+            description: $("#description").val(),
+            duration: $("#duration").val(),
+            active: $("#active").prop("checked"),
+            isDeleted: false
+        };
+
+        let apiUrl = "http://localhost:8080/api/v1/packages/save";
+        let methodType = "POST";
+
+        if (packageData.packageId) {
+            apiUrl = `http://localhost:8080/api/v1/packages/update/${packageData.packageId}`;
+            methodType = "PUT";
+        }
+
+        $.ajax({
+            url: apiUrl,
+            type: methodType,
+            contentType: "application/json",
+            data: JSON.stringify(packageData),
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function () {
+                alert(packageData.packageId ? "Package updated successfully!" : "Package saved successfully!");
+                clearForm();
+                viewPackages();
+            },
+            error: function (xhr) {
+                alert("Operation failed: " + xhr.responseText);
+            }
+        });
+    });
+
+    function deletePackage() {
+        let packageId = $("#packageId").val().trim();
+
+        if (!packageId) {
+            alert("Please select a package to delete.");
+            return;
+        }
+
+        if (!confirm("Are you sure you want to delete this package?")) {
+            return;
+        }
+
+        $.ajax({
+            url: `http://localhost:8080/api/v1/packages/delete/${packageId}`,
+            type: "DELETE",
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function () {
+                alert("Package deleted successfully!");
+                clearForm();
+                viewPackages();
+            },
+            error: function (xhr) {
+                alert("Delete failed: " + xhr.responseText);
+            }
+        });
+    }
+
+    function viewPackages() {
+        $.ajax({
+            url: "http://localhost:8080/api/v1/packages/getAll",
+            type: "GET",
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function (response) {
+                $("#packageList").empty();
+
+                response.data.forEach(pkg => {
+                    // Escape special characters in strings to prevent XSS
+                    const safeName = pkg.packageName.replace(/'/g, "\\'");
+                    const safeDestination = pkg.destination.replace(/'/g, "\\'");
+                    const safeDescription = pkg.description.replace(/'/g, "\\'");
+
+                    $("#packageList").append(`
+                        <div class="credit-card" onclick="fillForm(${pkg.packageId}, '${safeName}', '${safeDestination}', ${pkg.price}, '${safeDescription}', ${pkg.duration}, ${pkg.active})">
+                            <h5>${safeName}</h5>
+                            <p>Destination: ${safeDestination}</p>
+                            <p>Price: LKR ${pkg.price}</p>
+                            <p>Duration: ${pkg.duration} days</p>
+                        </div>
+                    `);
+                });
+            },
+            error: function (xhr) {
+                alert("Failed to load packages: " + xhr.responseText);
+            }
+        });
+    }
+
+    function clearForm() {
+        $("#packageForm")[0].reset();
+        $("#packageId").val("");
+    }
+
+    // Load packages when page loads
+    viewPackages();
+</script>
+
+</body>
+</html>

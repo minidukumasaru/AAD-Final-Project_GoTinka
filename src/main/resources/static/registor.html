@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go Tinka - Travel Registration</title>
+  <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+  />
+  <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+  />
+  <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+  <style>
+    /* Base Styles */
+    :root {
+      --primary-gradient: linear-gradient(135deg, #FF9671, #FFC75F);
+      --hover-gradient: linear-gradient(135deg, #FF7E50, #FFB52E);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --border-radius: 16px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      --accent-color: #5D9CEC;
+      --secondary-color: #84CEEB;
+    }
+
+    body {
+      font-family: "Montserrat", sans-serif;
+      background-color: #0B132B;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Background Animation */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .bg-gradient {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(-45deg, #FF9671, #5D9CEC, #FFC75F, #84CEEB);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      transform-origin: center center;
+      z-index: -1;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; transform: rotate(0deg); }
+      50% { background-position: 100% 50%; transform: rotate(5deg); }
+      100% { background-position: 0% 50%; transform: rotate(0deg); }
+    }
+
+    .particles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.5;
+      box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.3);
+      animation: float 20s infinite linear;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) translateX(0) rotate(0deg); }
+      50% { transform: translateY(-100px) translateX(100px) rotate(180deg); }
+      100% { transform: translateY(0) translateX(0) rotate(360deg); }
+    }
+
+    /* Travel-themed decorative elements */
+    .travel-icon {
+      position: absolute;
+      opacity: 0.2;
+      filter: blur(1px);
+      animation: float-icons 15s infinite ease-in-out;
+    }
+
+    @keyframes float-icons {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(10deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+
+    /* Auth Container */
+    .auth-container {
+      width: 100%;
+      max-width: 450px;
+      overflow: hidden;
+      position: relative;
+      perspective: 1000px;
+    }
+
+    .auth-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 40px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      transform-style: preserve-3d;
+      transition: transform 0.6s ease, box-shadow 0.6s ease;
+      animation: card-appear 0.8s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards;
+    }
+
+    @keyframes card-appear {
+      0% { opacity: 0; transform: scale(0.9) translateY(40px); }
+      60% { opacity: 1; transform: scale(1.02) translateY(-5px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .auth-card:hover {
+      transform: scale(1.02) rotateX(2deg) rotateY(2deg);
+      box-shadow: 0 20px 40px rgba(255, 150, 113, 0.3);
+    }
+
+    /* Logo & Header */
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+      letter-spacing: 1px;
+    }
+
+    .tagline {
+      font-size: 0.9rem;
+      color: #6b7280;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: -5px;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .auth-header h3 {
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      font-size: 1.8rem;
+      transform: perspective(1000px);
+      animation: text-focus 0.6s cubic-bezier(0.55, 0.085, 0.68, 0.53) 0.2s both;
+    }
+
+    @keyframes text-focus {
+      0% { filter: blur(12px); opacity: 0; }
+      100% { filter: blur(0); opacity: 1; }
+    }
+
+    .auth-header p {
+      font-size: 1rem;
+      margin-bottom: 25px;
+      color: #6b7280;
+      animation: fadeIn 0.6s ease 0.4s both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Form Styling */
+    .form-group {
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.4s ease-out forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.2s; }
+    .form-group:nth-child(2) { animation-delay: 0.3s; }
+    .form-group:nth-child(3) { animation-delay: 0.4s; }
+    .form-group:nth-child(4) { animation-delay: 0.5s; }
+    .form-group:nth-child(5) { animation-delay: 0.6s; }
+
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #4b5563;
+      transition: color 0.3s ease;
+    }
+
+    .form-control, .form-select {
+      border-radius: 12px;
+      padding: 16px;
+      border: 2px solid #e5e7eb;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 150, 113, 0.3);
+      border-color: #FF9671;
+      transform: translateY(-2px);
+    }
+
+    /* Input icons */
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 16px;
+      color: #FF9671;
+    }
+
+    .input-with-icon .form-control {
+      padding-left: 45px;
+    }
+
+    /* Password Field */
+    .password-field {
+      position: relative;
+    }
+
+    .password-field .toggle-password {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #FF9671;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .password-field .toggle-password:hover {
+      color: #FF7E50;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    /* Button */
+    .btn-primary {
+      background: var(--primary-gradient);
+      border: none;
+      padding: 16px 20px;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: all 0.4s ease;
+      letter-spacing: 0.8px;
+      color: white;
+      box-shadow: 0 5px 15px rgba(255, 150, 113, 0.4);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0.3),
+      rgba(255, 255, 255, 0));
+      transition: all 0.6s ease;
+      z-index: -1;
+    }
+
+    .btn-primary:hover {
+      background: var(--hover-gradient);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 150, 113, 0.6);
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    .auth-footer {
+      margin-top: 25px;
+      text-align: center;
+      animation: fadeIn 0.6s ease 0.8s both;
+    }
+
+    .auth-footer p {
+      font-size: 0.95rem;
+      color: #6b7280;
+    }
+
+    .auth-footer a {
+      color: #FF9671;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .auth-footer a:hover {
+      color: #FF7E50;
+    }
+
+    .auth-footer a::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      transform: scaleX(0);
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background-color: #FF9671;
+      transform-origin: bottom right;
+      transition: transform 0.3s ease-out;
+    }
+
+    .auth-footer a:hover::after {
+      transform: scaleX(1);
+      transform-origin: bottom left;
+    }
+  </style>
+</head>
+<body>
+<div class="bg-animation">
+  <div class="bg-gradient"></div>
+  <div class="particles">
+    <div class="particle" style="width: 30px; height: 30px; background: rgba(255, 255, 255, 0.3); top: 10%; left: 20%; animation-duration: 25s;"></div>
+    <div class="particle" style="width: 20px; height: 20px; background: rgba(255, 255, 255, 0.2); top: 30%; left: 70%; animation-duration: 18s;"></div>
+    <div class="particle" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.25); top: 70%; left: 30%; animation-duration: 20s;"></div>
+    <div class="particle" style="width: 15px; height: 15px; background: rgba(255, 255, 255, 0.3); top: 50%; left: 90%; animation-duration: 22s;"></div>
+    <div class="particle" style="width: 35px; height: 35px; background: rgba(255, 255, 255, 0.2); top: 80%; left: 10%; animation-duration: 19s;"></div>
+  </div>
+</div>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="logo-container">
+      <div class="logo">Go Tinka</div>
+      <div class="tagline">Your journey begins here</div>
+    </div>
+
+    <div class="auth-header">
+      <h3>Create Your Account</h3>
+      <p>Join us and explore the world!</p>
+    </div>
+
+    <div class="auth-body">
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name</label>
+          <div class="input-with-icon">
+            <i class="input-icon fa-solid fa-user"></i>
+            <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    placeholder="Enter your full name"
+                    required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <div class="input-with-icon">
+            <i class="input-icon fa-solid fa-envelope"></i>
+            <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <div class="password-field">
+            <div class="input-with-icon">
+              <i class="input-icon fa-solid fa-lock"></i>
+              <input
+                      type="password"
+                      class="form-control"
+                      id="password"
+                      placeholder="Enter your password"
+                      required
+              />
+            </div>
+            <span
+                    toggle="#password"
+                    class="toggle-password fa fa-eye"
+            ></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">
+            Confirm Password
+          </label>
+          <div class="password-field">
+            <div class="input-with-icon">
+              <i class="input-icon fa-solid fa-lock"></i>
+              <input
+                      type="password"
+                      class="form-control"
+                      id="confirmPassword"
+                      placeholder="Confirm your password"
+                      required
+              />
+            </div>
+            <span
+                    toggle="#confirmPassword"
+                    class="toggle-password fa fa-eye"
+            ></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="travelerType" class="form-label">I am a</label>
+          <select class="form-select" id="travelerType" required>
+            <option value="">Select Traveler Type</option>
+            <option value="USER">Happy Traveler</option>
+            <option value="ADMIN">Travelers Admin</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-2">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="fa-solid fa-paper-plane me-2"></i> Start Your Journey
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="auth-footer">
+      <p class="mb-0">
+        Already a traveler with us? <a href="login.html">Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  $(document).ready(function () {
+    // Password visibility toggle
+    $(".toggle-password").click(function () {
+      $(this).toggleClass("fa-eye fa-eye-slash");
+      var input = $($(this).attr("toggle"));
+      if (input.attr("type") === "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
+    });
+
+    // Corrected toggle functionality
+    $(".toggle-password").click(function() {
+      $(this).toggleClass("fa-eye fa-eye-slash");
+      var input = $("#" + $(this).attr("toggle").substring(1));
+      if (input.attr("type") === "password") {
+        input.attr("type", "text");
+      } else {
+        input.attr("type", "password");
+      }
+    });
+
+    // Form submission
+    $("#registerForm").on("submit", function (e) {
+      e.preventDefault();
+      console.log('hiiiiiiiii')
+
+      const password = $("#password").val();
+      const confirmPassword = $("#confirmPassword").val();
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      $.ajax({
+        url: "http://localhost:8080/api/v1/user/register",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+          email: $("#email").val(),
+          password: password,
+          name: $("#name").val(),
+          role: $("#travelerType").val(),
+        }),
+        success: function (response) {
+          console.log("hiiii",response)
+          alert("Registration successful! Ready to explore with Go Tinka!");
+          $("#registerForm")[0].reset();
+          window.location.href = "login.html";
+        },
+        error: function (xhr, status, error) {
+          alert("Registration failed. Please try again.");
+          console.error("Error:", error);
+          if (xhr.responseJSON && xhr.responseJSON.message) {
+            alert(xhr.responseJSON.message);
+          }
+        },
+      });
+    });
+  });
+</script>
+</body>
+</html>
