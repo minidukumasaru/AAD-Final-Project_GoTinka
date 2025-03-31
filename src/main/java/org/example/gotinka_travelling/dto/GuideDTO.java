@@ -8,11 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class GuideDTO {
-    private int id;
+    private int GuideId;
+
     private String name;
     private String contact;
     private String languages; // Comma-separated: "English, Spanish, French"
     private Double rating;
     private Boolean available;
     private String imagePath;
+    private boolean isDeleted = false;
 }

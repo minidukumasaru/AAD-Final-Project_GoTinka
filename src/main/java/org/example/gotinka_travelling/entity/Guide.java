@@ -24,7 +24,7 @@ public class Guide {
     private Double rating;
     private Boolean available;
     private String imagePath;
-
+    private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "guide")
     private List<GuideTour> guideTours;
