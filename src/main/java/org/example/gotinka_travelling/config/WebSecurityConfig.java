@@ -22,13 +22,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-
-/**
- * @author udarasan
- * @TimeStamp 2023-07-15 15:00
- * @ProjectDetails invoice_service
- */
-
 @EnableWebSecurity
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
@@ -53,6 +46,7 @@ public class WebSecurityConfig {
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Enable CORS
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -60,12 +54,6 @@ public class WebSecurityConfig {
                                 "/api/v1/user/register",
                                 "/api/v1/user/getAll",
                                 "/api/v1/vehicles/getAll",
-                                "/api/v1/vehicles/save",
-                                "/api/v1/offers/*",
-                                "/api/v1/packages/*",
-                                "/api/v1/packages/save",
-                                "/api/v1/packages/delete",
-                                "/api/v1/packages/update",
                                 "/api/v1/auth/refreshToken",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -76,6 +64,8 @@ public class WebSecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -88,7 +78,6 @@ public class WebSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
 
 }

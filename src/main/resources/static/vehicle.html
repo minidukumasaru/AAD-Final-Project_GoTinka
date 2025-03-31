@@ -520,7 +520,7 @@
                         </div>
                         <form id="vehicleForm">
                             <!-- Hidden input for tracking ID -->
-                            <input type="hidden" id="vehicleId">
+                            <input type="text" id="vehicleId">
 
                             <div class="mb-3">
                                 <label for="registrationNumber" class="form-label">Registration Number</label>
@@ -545,16 +545,18 @@
                             <div class="mb-3">
                                 <label for="pricePerDay" class="form-label">Price Per Day ($)</label>
                                 <input type="number" class="form-control" id="pricePerDay" required min="0" step="0.01">
+
                             </div>
 
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="available" checked>
                                 <label class="form-check-label" for="available">Available</label>
                             </div>
-
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary" id="saveBtn">Save Vehicle</button>
                                 <button type="button" class="btn btn-secondary" id="clearBtn">Clear Form</button>
+                                <button onclick="deleteVehicle()">Delete Vehicle</button>
+
                             </div>
                         </form>
                     </div>
@@ -582,119 +584,133 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        // Authentication token
-        let authToken = localStorage.getItem("jwt_token");
-        if (!authToken) {
-            window.location.href = 'login.html'; // Redirect if no token
+    let authToken = localStorage.getItem("jwt_token");
+
+    // Save or Update Vehicle (Create or Update)
+    $("#vehicleForm").submit(function (event) {
+        event.preventDefault();
+
+        let vehicleId = $("#vehicleId").val().trim();
+        let registrationNumber = $("#registrationNumber").val().trim();
+        let type = $("#type").val().trim();
+        let capacity = $("#capacity").val().trim();
+        let pricePerDay = $("#pricePerDay").val().trim();
+        let available = $("#available").prop("checked");
+
+        // Validate required fields
+        if (!registrationNumber || !type || !capacity || !pricePerDay) {
+            alert("Please enter all required fields!");
+            return;
         }
 
-        // API Base URL
-        const API_BASE_URL = 'http://localhost:8080/api/v1/vehicles';
+        let apiUrl = "http://localhost:8080/api/v1/vehicles/save";
+        let methodType = "POST";
+        let requestData = { registrationNumber, type, capacity, pricePerDay, available };
 
-        // Load Vehicles
-        function loadVehicles() {
-            $.ajax({
-                url: `${API_BASE_URL}/getAll`,
-                type: "GET",
-                headers: { "Authorization": `Bearer ${authToken}` },
-                success: function(response) {
-                    $("#vehicleList").empty();
+        if (vehicleId) { // If vehicleId exists, update instead of saving
+            apiUrl = `http://localhost:8080/api/v1/vehicles/update/${vehicleId}`;
+            methodType = "PUT";
+            requestData.vehicleId = vehicleId;
+        }
 
-                    if (!Array.isArray(response.data)) {
-                        console.error("Unexpected response format:", response);
-                        alert("Error fetching vehicles.");
-                        return;
-                    }
+        $.ajax({
+            url: apiUrl,
+            type: methodType,
+            contentType: "application/json",
+            data: JSON.stringify(requestData),
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function () {
+                alert(vehicleId ? "Vehicle updated successfully!" : "Vehicle saved successfully!");
+                clearVehicleForm();
+                viewVehicles();
+            },
+            error: function (xhr) {
+                alert("Operation failed: " + xhr.responseText);
+            },
+        });
+    });
 
-                    response.data.forEach(vehicle => {
+    function deleteVehicle() {
+        let vehicleId = $("#vehicleId").val().trim();
+        if (!vehicleId) {
+            alert("Please select a vehicle to delete.");
+            return;
+        }
+        if (!confirm("Are you sure you want to delete this vehicle?")) {
+            return;
+        }
+
+        // Make sure to call viewVehicles first to ensure the form is updated before deleting
+        clearVehicleForm();  // Clear the form before deletion
+
+        $.ajax({
+            url: `http://localhost:8080/api/v1/vehicles/delete/${vehicleId}`,
+            type: "DELETE",
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function () {
+                alert("Vehicle deleted successfully!"); // Now this comes after the deletion is successful
+                viewVehicles();
+            },
+            error: function (xhr) {
+                alert("Delete failed: " + xhr.responseText);
+            },
+        });
+    }
+
+    // View Vehicles
+    function viewVehicles() {
+        $.ajax({
+            url: "http://localhost:8080/api/v1/vehicles/getAll",
+            type: "GET",
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function (response) {
+                $("#vehicleList").empty();
+
+                response.data.forEach(vehicle => {
+                    if (vehicle.deleted === false) {  // Only show non-deleted vehicles
+                        const safeRegNumber = vehicle.registrationNumber.replace(/'/g, "\\'");
+                        const safeType = vehicle.type.replace(/'/g, "\\'");
+
                         $("#vehicleList").append(`
-                    <div class="vehicle-card ${vehicle.available ? 'available' : 'unavailable'}">
-                        <h5>${vehicle.registrationNumber}</h5>
-                        <p><i class="fas fa-car"></i> Type: ${vehicle.type}</p>
-                        <p><i class="fas fa-users"></i> Capacity: ${vehicle.capacity}</p>
-                        <p><i class="fas fa-dollar-sign"></i> Price: $${vehicle.pricePerDay}/day</p>
+                    <div class="vehicle-card ${vehicle.available ? 'available' : 'unavailable'}"
+                        onclick="fillVehicleForm(${vehicle.vehicleId}, '${safeRegNumber}', '${safeType}', ${vehicle.capacity}, ${vehicle.pricePerDay}, ${vehicle.available})">
+                        <h5>${safeRegNumber}</h5>
+                        <p>Type: ${safeType}</p>
+                        <p>Capacity: ${vehicle.capacity}</p>
+                        <p>Price: LKR ${vehicle.pricePerDay} per day</p>
                         <p><span class="badge ${vehicle.available ? 'bg-success' : 'bg-danger'}">
                             ${vehicle.available ? 'Available' : 'Unavailable'}
                         </span></p>
                     </div>
                 `);
-                    });
-                },
-                error: function(xhr) {
-                    console.error("Failed to load vehicles:", xhr.responseText);
-                    alert("Failed to fetch vehicles: " + xhr.responseText);
-                }
-            });
-        }
-
-        // Save or Update Vehicle
-        $("#vehicleForm").submit(function(event) {
-            event.preventDefault();
-
-            // Collect form data
-            let vehicleData = {
-                vehicleId: $("#vehicleId").val(),
-                registrationNumber: $("#registrationNumber").val().trim(),
-                type: $("#type").val(),
-                capacity: $("#capacity").val(),
-                pricePerDay: $("#pricePerDay").val(),
-                available: $("#available").prop("checked")
-            };
-
-            // Validate form
-            if (!vehicleData.registrationNumber || !vehicleData.type ||
-                !vehicleData.capacity || !vehicleData.pricePerDay) {
-                alert("Please fill in all required fields!");
-                return;
+                    }
+                });
+            },
+            error: function (xhr) {
+                alert("Failed to load vehicles: " + xhr.responseText);
             }
-
-            // Determine endpoint based on whether it's a new or existing vehicle
-            let ajaxConfig = {
-                url: vehicleData.vehicleId ? `${API_BASE_URL}/update` : `${API_BASE_URL}/save`,
-                type: vehicleData.vehicleId ? "PUT" : "POST",
-                contentType: "application/json",
-                data: JSON.stringify(vehicleData),
-                headers: { "Authorization": `Bearer ${authToken}` },
-                success: function() {
-                    alert(vehicleData.vehicleId ? "Vehicle updated successfully!" : "Vehicle saved successfully!");
-                    loadVehicles();
-                    clearForm();
-                },
-                error: function(xhr) {
-                    alert("Operation failed: " + xhr.responseText);
-                }
-            };
-
-            $.ajax(ajaxConfig);
         });
+    }
 
-        // Clear Form Function
-        function clearForm() {
-            $("#vehicleId").val("");
-            $("#registrationNumber").val("");
-            $("#type").val("");
-            $("#capacity").val("");
-            $("#pricePerDay").val("");
-            $("#available").prop("checked", true);
-            $("#saveBtn").text("Save Vehicle");
-        }
+    // Function to fill form when a vehicle card is clicked
+    function fillVehicleForm(vehicleId, registrationNumber, type, capacity, pricePerDay, available) {
+        $("#vehicleId").val(vehicleId);
+        $("#registrationNumber").val(registrationNumber);
+        $("#type").val(type);
+        $("#capacity").val(capacity);
+        $("#pricePerDay").val(pricePerDay);
+        $("#available").prop('checked', available);
+    }
 
-        // Clear Form Button
-        $("#clearBtn").click(clearForm);
+    // Clear Form Function
+    function clearVehicleForm() {
+        $("#vehicleForm")[0].reset();
+        $("#vehicleId").val("");
+    }
 
-        // Search Vehicles
-        $("#searchVehicle").on("keyup", function() {
-            let searchValue = $(this).val().toLowerCase();
-            $(".vehicle-card").each(function() {
-                let registrationNumber = $(this).find("h5").text().toLowerCase();
-                $(this).toggle(registrationNumber.indexOf(searchValue) > -1);
-            });
-        });
+    // Load vehicles when page loads
+    viewVehicles();
 
-        // Initial load of vehicles
-        loadVehicles();
-    });
 </script>
 
 </body>

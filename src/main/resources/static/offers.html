@@ -44,7 +44,7 @@
 
 <div class="form-container">
     <h3 class="text-center">Manage Offer</h3>
-    <form>
+    <form id="offerForm">
         <div class="mb-3">
             <label class="form-label">Offer Name</label>
             <input type="text" class="form-control" id="offerName" placeholder="Enter offer name">
@@ -67,11 +67,13 @@
                 <option selected>Select a package</option>
             </select>
         </div>
+        <label class="form-label">OfferId</label>
+        <input type="text" class="form-control" id="offerId">
+        <label class="form-label">PackageId</label>
         <input type="text" class="form-control" id="packageId">
         <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
-            <button type="button" class="btn btn-warning">Update</button>
-            <button type="button" class="btn btn-warning">Delete</button>
+            <button type="button" class="btn btn-warning" onclick=" deleteOffer()">Delete</button>
             <button type="button" class="btn btn-warning" onclick="viewOffers()">View</button>
         </div>
     </form>
@@ -85,6 +87,7 @@
 <script>
     let authToken = localStorage.getItem("jwt_token");
     loadAllPackageNames();
+    viewOffers();
 
     function loadAllPackageNames() {
         $.ajax({
@@ -141,92 +144,125 @@
         }
     });
 
-    // Attach Save function to the button
-    $(document).on("click", "#saveBtn", saveOffer);
+    // Save or Update Offer (Create or Update)
+    $("#offerForm").submit(function (event) {
+        event.preventDefault();
 
-    function saveOffer(event) {
-        event.preventDefault(); // Prevent form submission
+        let offerId = $("#offerId").val().trim();
+        let offerName = $("#offerName").val().trim();
+        let discountPercentage = $("#discountPercentage").val().trim();
+        let validFrom = $("#validFrom").val().trim();
+        let validUntil = $("#validUntil").val().trim();
+        let packageId = $("#packageId").val().trim();
 
-        let offerName = $("#offerName").val();
-        let discountPercentage = $("#discountPercentage").val();
-        let validFrom = $("#validFrom").val();
-        let validUntil = $("#validUntil").val();
-        let packageName = $("#packageName").val();
-        let packageId = $("#packageId").val();
-
-
-        if (!offerName || !discountPercentage || !validFrom || !validUntil || packageName === "Select a package") {
-            alert("Please fill in all fields.");
+        if (!offerName || !discountPercentage || !validFrom || !validUntil || !packageId) {
+            alert("Please fill in all required fields!");
             return;
         }
 
-        let offerData = {
-            offerName: offerName,
-            discountPercentage: discountPercentage,
-            validFrom: validFrom,
-            validUntil: validUntil,
-            packageId: packageId,
-        };
+        let apiUrl = "http://localhost:8080/api/v1/offers/save";
+        let methodType = "POST";
+        let requestData = { offerName, discountPercentage, validFrom, validUntil, packageId };
+
+        if (offerId) { // If offerId exists, update instead of saving
+            apiUrl = `http://localhost:8080/api/v1/offers/update/${offerId}`;
+            methodType = "PUT";
+            requestData.offerId = offerId;
+        }
 
         $.ajax({
-            url: "http://localhost:8080/api/v1/offers/save",
-            method: "POST",
+            url: apiUrl,
+            type: methodType,
             contentType: "application/json",
+            data: JSON.stringify(requestData),
             headers: { "Authorization": `Bearer ${authToken}` },
-            data: JSON.stringify(offerData),
-            success: (response) => {
-                alert("Offer saved successfully!");
-                console.log("Offer saved:", response);
-                // Optionally, clear the form
-                $("#offerName").val("");
-                $("#discountPercentage").val("");
-                $("#validFrom").val("");
-                $("#validUntil").val("");
-                $("#packageName").val("Select a package");
+            success: function () {
+                alert(offerId ? "Offer updated successfully!" : "Offer saved successfully!");
+                clearOfferForm();
+                viewOffers();
             },
-            error: (err) => {
-                console.error("Error saving offer:", err);
-                alert("Failed to save offer. Please try again.");
-            }
+            error: function (xhr) {
+                alert("Operation failed: " + xhr.responseText);
+            },
+        });
+    });
+
+    // Delete Offer
+    function deleteOffer() {
+        let offerId = $("#offerId").val().trim();
+        if (!offerId) {
+            alert("Please select an offer to delete.");
+            return;
+        }
+        if (!confirm("Are you sure you want to delete this offer?")) {
+            return;
+        }
+
+        $.ajax({
+            url: `http://localhost:8080/api/v1/offers/delete/${offerId}`,
+            type: "DELETE",
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function () {
+                alert("Offer deleted successfully!");
+                clearOfferForm();
+                viewOffers();
+            },
+            error: function (xhr) {
+                alert("Delete failed: " + xhr.responseText);
+            },
         });
     }
 
+    // View Offers
     function viewOffers() {
         $.ajax({
             url: "http://localhost:8080/api/v1/offers/getAll",
             type: "GET",
             headers: { "Authorization": `Bearer ${authToken}` },
             success: function (response) {
-                // Empty the existing package list
                 $("#offerList").empty();
 
-                // Check if the response is in the expected format (array of packages)
-                if (!Array.isArray(response.data)) {
-                    console.error("Unexpected response format:", response);
-                    alert("Error fetching packages. Check console for details.");
-                    return;
-                }
 
-                // Iterate over the packages and append them to the list
-                response.data.forEach(offer => {
+
+                        response.data.forEach(offer => {
+                            console.log("Offer ID:", offer.offerId);
+                            console.log("Package ID:", offer.packageId);
                     $("#offerList").append(`
-                    <div class="credit-card" onclick="fillForm('${offer.offerName}', '${offer.discountPercentage}','${offer.validFrom}','${offer.validUntil}')">
-
-                        <h5>${offer.offerName}</h5>
-                        <p>Discount: ${offer.discountPercentage} %</p>
-                        <p>ValidFrom : ${offer.validFrom}</p>
-                        <p>validUtil: LKR ${offer.validUntil}</p>
-                    </div>
-                `);
-                });
+                <div class="offer-card" onclick="fillOfferForm(${offer.offerId}, '${offer.offerName}', '${offer.discountPercentage}', '${offer.validFrom}', '${offer.validUntil}', '${offer.packageId}')">
+                    <h5>${offer.offerName}</h5>
+                    <p>Discount: ${offer.discountPercentage}%</p>
+                    <p>Package Id: ${offer.packageId}</p>
+                    <p>Valid From: ${offer.validFrom}</p>
+                    <p>Valid Until: ${offer.validUntil}</p>
+                </div>
+            `);
+                        });
             },
             error: function (xhr) {
-                console.error("Failed to load packages:", xhr.responseText);
-                alert("Failed to fetch packages.");
+                alert("Failed to fetch offers.");
             },
         });
     }
 
+    // Fill Offer Form when clicking an offer
+    function fillOfferForm(offerId, offerName, discountPercentage, validFrom, validUntil, packageId) {
+        $("#offerId").val(offerId);
+        $("#offerName").val(offerName);
+        $("#discountPercentage").val(discountPercentage);
+        $("#validFrom").val(validFrom);
+        $("#validUntil").val(validUntil);
+        $("#packageId").val(packageId);
+    }
+
+    // Clear Offer Form
+    function clearOfferForm() {
+        $("#offerId").val("");
+        $("#offerName").val("");
+        $("#discountPercentage").val("");
+        $("#validFrom").val("");
+        $("#validUntil").val("");
+        $("#packageId").val("");
+    }
 
 </script>
 </body>

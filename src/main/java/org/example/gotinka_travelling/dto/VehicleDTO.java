@@ -14,5 +14,5 @@ public class VehicleDTO {
     private Integer capacity;
     private Boolean available;
     private Double pricePerDay;
-
+    private boolean isDeleted = false;
 }

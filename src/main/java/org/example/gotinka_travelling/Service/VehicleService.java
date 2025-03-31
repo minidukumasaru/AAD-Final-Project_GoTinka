@@ -9,4 +9,7 @@ public interface VehicleService {
     void saveVehicle(VehicleDTO vehicleDTO);  // Save a new vehicle
     List<VehicleDTO> getAllVehicles();  // Get all vehicles
 
+    void updateVehicle(int id, VehicleDTO vehicleDTO);
+
+    void deleteVehicle(int id);
 }

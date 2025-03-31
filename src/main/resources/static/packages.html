@@ -121,7 +121,7 @@
                 </div>
             </div>
 
-            <input type="hidden" id="packageId">
+            <input type="text" id="packageId">
 
             <div class="row text-center">
                 <div class="col-md-4">
@@ -144,71 +144,60 @@
 <script>
     let authToken = localStorage.getItem("jwt_token");
 
-    // Function to fill form when card is clicked
-    function fillForm(packageId, packageName, destination, price, description, duration, active) {
-        // Populate text input fields
-        $("#packageId").val(packageId);
-        $("#packageName").val(packageName);
-        $("#destination").val(destination);
-        $("#price").val(price);
-        $("#description").val(description);
-        $("#duration").val(duration);
 
-        // Set checkbox state based on active status
-        $("#active").prop('checked', active);
-    }
-
+    // Save or Update Package (Create or Update)
     $("#packageForm").submit(function (event) {
         event.preventDefault();
 
-        let packageData = {
-            packageId: $("#packageId").val(),
-            packageName: $("#packageName").val(),
-            destination: $("#destination").val(),
-            price: $("#price").val(),
-            description: $("#description").val(),
-            duration: $("#duration").val(),
-            active: $("#active").prop("checked"),
-            isDeleted: false
-        };
+        let packageId = $("#packageId").val().trim();
+        let packageName = $("#packageName").val().trim();
+        let destination = $("#destination").val().trim();
+        let price = $("#price").val().trim();
+        let description = $("#description").val().trim();
+        let duration = $("#duration").val().trim();
+
+        // Validate required fields
+        if (!packageName || !destination || !price || !description || !duration) {
+            alert("Please enter all required fields!");
+            return;
+        }
 
         let apiUrl = "http://localhost:8080/api/v1/packages/save";
         let methodType = "POST";
+        let requestData = { packageName, destination, price, description, duration, active: $("#active").prop("checked"), isDeleted: false };
 
-        if (packageData.packageId) {
-            apiUrl = `http://localhost:8080/api/v1/packages/update/${packageData.packageId}`;
+        if (packageId) { // If packageId exists, update instead of saving
+            apiUrl = `http://localhost:8080/api/v1/packages/update/${packageId}`;
             methodType = "PUT";
+            requestData.packageId = packageId;
         }
 
         $.ajax({
             url: apiUrl,
             type: methodType,
             contentType: "application/json",
-            data: JSON.stringify(packageData),
+            data: JSON.stringify(requestData),
             headers: { "Authorization": `Bearer ${authToken}` },
             success: function () {
-                alert(packageData.packageId ? "Package updated successfully!" : "Package saved successfully!");
+                alert(packageId ? "Package updated successfully!" : "Package saved successfully!");
                 clearForm();
                 viewPackages();
             },
             error: function (xhr) {
                 alert("Operation failed: " + xhr.responseText);
-            }
+            },
         });
     });
 
     function deletePackage() {
         let packageId = $("#packageId").val().trim();
-
         if (!packageId) {
             alert("Please select a package to delete.");
             return;
         }
-
         if (!confirm("Are you sure you want to delete this package?")) {
             return;
         }
-
         $.ajax({
             url: `http://localhost:8080/api/v1/packages/delete/${packageId}`,
             type: "DELETE",
@@ -220,9 +209,11 @@
             },
             error: function (xhr) {
                 alert("Delete failed: " + xhr.responseText);
-            }
+            },
         });
     }
+
+
 
     function viewPackages() {
         $.ajax({
@@ -253,6 +244,21 @@
             }
         });
     }
+
+    // Function to fill form when card is clicked
+    function fillForm(packageId, packageName, destination, price, description, duration, active) {
+        // Populate text input fields
+        $("#packageId").val(packageId);
+        $("#packageName").val(packageName);
+        $("#destination").val(destination);
+        $("#price").val(price);
+        $("#description").val(description);
+        $("#duration").val(duration);
+
+        // Set checkbox state based on active status
+        $("#active").prop('checked', active);
+    }
+
 
     function clearForm() {
         $("#packageForm")[0].reset();

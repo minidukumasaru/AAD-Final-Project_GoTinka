@@ -24,7 +24,9 @@ public class Vehicle {
     private Integer capacity;
     private Boolean available;
     private Double pricePerDay;
-
+    private boolean isDeleted = false;
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<VehicleBooking> vehicleBookings;
+
+
 }

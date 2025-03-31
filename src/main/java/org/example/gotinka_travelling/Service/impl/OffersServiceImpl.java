@@ -7,53 +7,46 @@ import org.example.gotinka_travelling.dto.OffersDTO;
 import org.example.gotinka_travelling.entity.Offers;
 import org.example.gotinka_travelling.entity.Packages;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OffersServiceImpl implements OffersService {
 
-    @Autowired
-    private OffersRepo offersRepo;
+    private final OffersRepo offersRepo;
+    private final PackageRepo packageRepo;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private PackageRepo packageRepo;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
-    @Override
-    public void saveOffers(OffersDTO offersDTO) {
-        // Check if the offer already exists
-        if (offersDTO.getOfferId() != 0 && offersRepo.existsById(offersDTO.getOfferId())) {
-            throw new RuntimeException("Offer already exists");
-        }
-
-        // Map DTO to entity
-        Offers offers = modelMapper.map(offersDTO, Offers.class);
-
-        // Fetch and assign package
-        Packages packages = packageRepo.findById(offersDTO.getPackageId())
-                .orElseThrow(() -> new RuntimeException("Package not found"));
-        offers.setPackages(packages);
-        System.out.println(offersDTO.getPackageId());
-
-        // Save to database
-        offersRepo.save(offers);
+    public OffersServiceImpl(OffersRepo offersRepo, PackageRepo packageRepo, ModelMapper modelMapper) {
+        this.offersRepo = offersRepo;
+        this.packageRepo = packageRepo;
+        this.modelMapper = modelMapper;
     }
 
     @Override
     public List<OffersDTO> getAllOffers() {
-        List<Offers> offersList = offersRepo.findByIsDeletedFalse();
-        return modelMapper.map(offersList, new TypeToken<List<OffersDTO>>() {}.getType());
+        return offersRepo.findByIsDeletedFalse().stream()
+                .map(offer -> modelMapper.map(offer, OffersDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public void updateOffer(OffersDTO offersDTO) {
-        Offers existingOffer = offersRepo.findById(offersDTO.getOfferId())
+    public void saveOffers(OffersDTO offersDTO) {
+        Offers offer = modelMapper.map(offersDTO, Offers.class);
+        offer.setDeleted(false);  // Ensure the offer is not deleted by default
+
+        Packages packages = packageRepo.findById(offersDTO.getPackageId())
+                .orElseThrow(() -> new RuntimeException("Package not found"));
+        offer.setPackages(packages);
+
+        offersRepo.save(offer);
+    }
+
+    @Override
+    public void updateOffer(int id, OffersDTO offersDTO) {
+        Offers existingOffer = offersRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Offer not found"));
 
         existingOffer.setOfferName(offersDTO.getOfferName());
@@ -72,7 +65,8 @@ public class OffersServiceImpl implements OffersService {
     public void deleteOffer(int id) {
         Offers offer = offersRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Offer not found"));
-        offer.setDeleted(true);
+
+        offer.setDeleted(true);  // Soft delete
         offersRepo.save(offer);
     }
 }
