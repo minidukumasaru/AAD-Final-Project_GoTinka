@@ -695,6 +695,18 @@
             }
         });
     }
+    // Search functionality
+    $("#searchVehicle").on("keyup", function() {
+        const searchText = $(this).val().toLowerCase();
+        $(".vehicle-card").each(function() {
+            const RejNumber = $(this).find("h5").text().toLowerCase();
+            if (RejNumber.includes(searchText)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
 
     // Function to fill form when a vehicle card is clicked
     function fillVehicleForm(vehicleId, registrationNumber, type, capacity, pricePerDay, available) {

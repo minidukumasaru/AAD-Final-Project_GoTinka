@@ -670,6 +670,18 @@
             }
         });
     }
+    // Search functionality
+    $("#searchPackage").on("keyup", function() {
+        const searchText = $(this).val().toLowerCase();
+        $(".package-card").each(function() {
+            const PackageName = $(this).find("h5").text().toLowerCase();
+            if (PackageName.includes(searchText)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
 
     // Function to fill form when card is clicked
     function fillForm(packageId, packageName, destination, price, description, duration, active) {

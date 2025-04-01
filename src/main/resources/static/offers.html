@@ -715,6 +715,18 @@
             },
         });
     }
+    // Search functionality
+    $("#searchOffer").on("keyup", function() {
+        const searchText = $(this).val().toLowerCase();
+        $(".offer-card").each(function() {
+            const OfferName = $(this).find("h5").text().toLowerCase();
+            if (OfferName.includes(searchText)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
 
     // Fill Offer Form when clicking an offer
     function fillOfferForm(offerId, offerName, discountPercentage, validFrom, validUntil, packageId) {
