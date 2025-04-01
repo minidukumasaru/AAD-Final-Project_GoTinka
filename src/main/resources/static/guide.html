@@ -5,9 +5,244 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Guides</title>
     <!-- Bootstrap CSS and Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
     <style>
+
+         :root {
+             --primary: #FF6B6B;
+             --secondary: #4ECDC4;
+             --accent: #FFD166;
+             --success: #06D6A0;
+             --danger: #EF476F;
+             --warning: #FFD166;
+             --info: #118AB2;
+             --light: #f8f9fa;
+             --dark: #073B4C;
+             --sidebar-width: 250px;
+         }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(to bottom, #073B4C, #118AB2);
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .sidebar-brand {
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-brand a {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .sidebar-brand a span {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu ul li {
+            padding: 0;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu ul li a {
+            padding: 15px 25px;
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            border-radius: 0 30px 30px 0;
+        }
+
+        .sidebar-menu ul li a:hover,
+        .sidebar-menu ul li.active a {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu ul li.active a {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-menu ul li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        .topbar {
+            background-color: #fff;
+            height: 70px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .toggle-sidebar {
+            font-size: 20px;
+            margin-right: 20px;
+            cursor: pointer;
+            display: none;
+            color: var(--dark);
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        .search-form {
+            position: relative;
+        }
+
+        .search-form input {
+            width: 100%;
+            height: 45px;
+            border-radius: 50px;
+            border: 1px solid #eaeaea;
+            padding: 0 20px;
+            padding-left: 45px;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s;
+        }
+
+        .search-form input:focus {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .search-form button {
+            background: transparent;
+            border: none;
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification {
+            margin-right: 25px;
+            position: relative;
+        }
+
+        .notification i {
+            font-size: 20px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .notification .badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            line-height: 1.2;
+        }
+
+        .user-info h6 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-info span {
+            font-size: 12px;
+            color: #888;
+        }
+
+
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
+            display: flex;
+        }
         .guide-card {
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -66,10 +301,111 @@
         .star-rating {
             color: gold;
         }
+         /* Responsive */
+         @media (max-width: 991px) {
+             .sidebar {
+                 margin-left: -250px;
+             }
+
+             .sidebar.active {
+                 margin-left: 0;
+             }
+
+             .main-content {
+                 width: 100%;
+                 margin-left: 0;
+             }
+
+             .main-content.active {
+                 margin-left: 250px;
+                 width: calc(100% - 250px);
+             }
+
+             .toggle-sidebar {
+                 display: block;
+             }
+         }
+
+         @media (max-width: 767px) {
+             .search-bar {
+                 display: none;
+             }
+         }
     </style>
 </head>
 <body>
-<div class="container mt-4">
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <a href="dashboard.html">GO<span>Tinka</span></a>
+    </div>
+    <div class="sidebar-menu">
+        <ul>
+            <li >
+                <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            </li>
+            <li>
+                <a href="admin-users.html"><i class="fas fa-users"></i> Users</a>
+            </li>
+            <li class="active">
+                <a href="guide.html"><i class="fas fa-user-tie"></i> Guides</a>
+            </li>
+            <li>
+                <a href="vehicle.html"><i class="fas fa-car"></i> Vehicles</a>
+            </li>
+            <li>
+                <a href="packages.html"><i class="fas fa-car"></i> Packages</a>
+            </li>
+            <li>
+                <a href="offers.html"><i class="fas fa-gift"></i>Offers </a>
+            </li>
+            <li>
+                <a href="Payment.html"><i class="fas fa-credit-card"></i> Payment</a>
+            </li>
+            <li>
+                <a href="Booking.html"><i class="fas fa-calendar-check"></i> Booking</a>
+            </li>
+            <li>
+                <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+            </li>
+            <li>
+                <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+            </li>
+            <li>
+                <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Topbar -->
+    <div class="topbar">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="search-bar">
+            <form class="search-form">
+                <input type="text" placeholder="Search for destinations, bookings, customers...">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <div class="topbar-right">
+            <div class="notification">
+                <i class="fas fa-bell"></i>
+                <span class="badge">7</span>
+            </div>
+            <div class="user-profile">
+                <img src="/api/placeholder/50/50" alt="placeholder">
+                <div class="user-info">
+                    <h6>Sarah Johnson</h6>
+                    <span>Agency Manager</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <h2 class="mb-4">Tour Guide Management</h2>
 
     <div class="row">
@@ -151,14 +487,22 @@
             </div>
         </div>
     </div>
-
-
-</div>
+    </div>
 
 <!-- jQuery and Bootstrap JS -->
 <script src="assets/js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    $(document).ready(function() {
+        // Toggle sidebar
+        $('.toggle-sidebar').on('click', function() {
+            $('.sidebar').toggleClass('active');
+            $('.main-content').toggleClass('active');
+        });
+
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+    });
     // Get authentication token
     let authToken = localStorage.getItem("jwt_token");
 

@@ -18,28 +18,23 @@
 
     <style>
         :root {
-            --primary: #007bff;
-            --secondary: #6c757d;
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #17a2b8;
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFD166;
+            --success: #06D6A0;
+            --danger: #EF476F;
+            --warning: #FFD166;
+            --info: #118AB2;
             --light: #f8f9fa;
-            --dark: #343a40;
+            --dark: #073B4C;
             --sidebar-width: 250px;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
+            background-color: #f5f7fa;
             overflow-x: hidden;
         }
-        .avatar {
-            font-size: 24px; /* Adjust size */
-            color: #333; /* Change color */
-            margin-right: 10px; /* Space between icon and text */
-        }
-
 
         .dashboard-container {
             display: flex;
@@ -57,19 +52,19 @@
         }
 
         .sidebar-brand {
-            padding: 20px 30px;
+            padding: 25px 30px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-brand a {
             color: #fff;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
             text-decoration: none;
         }
 
         .sidebar-brand a span {
-            color: var(--primary);
+            color: var(--accent);
         }
 
         .sidebar-menu {
@@ -85,23 +80,29 @@
         .sidebar-menu ul li {
             padding: 0;
             position: relative;
+            margin-bottom: 5px;
         }
 
         .sidebar-menu ul li a {
             padding: 15px 25px;
             display: block;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
             text-decoration: none;
             transition: all 0.3s;
             border-left: 4px solid transparent;
+            border-radius: 0 30px 30px 0;
         }
 
         .sidebar-menu ul li a:hover,
         .sidebar-menu ul li.active a {
             color: #fff;
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 4px solid var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu ul li.active a {
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .sidebar-menu ul li a i {
@@ -120,7 +121,7 @@
         .topbar {
             background-color: #fff;
             height: 70px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
             padding: 0 30px;
@@ -134,6 +135,7 @@
             margin-right: 20px;
             cursor: pointer;
             display: none;
+            color: var(--dark);
         }
 
         .search-bar {
@@ -147,12 +149,19 @@
 
         .search-form input {
             width: 100%;
-            height: 40px;
-            border-radius: 20px;
+            height: 45px;
+            border-radius: 50px;
             border: 1px solid #eaeaea;
             padding: 0 20px;
-            padding-left: 40px;
+            padding-left: 45px;
             font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s;
+        }
+
+        .search-form input:focus {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary);
         }
 
         .search-form button {
@@ -171,7 +180,7 @@
         }
 
         .notification {
-            margin-right: 20px;
+            margin-right: 25px;
             position: relative;
         }
 
@@ -225,28 +234,7 @@
             color: #888;
         }
 
-        .content-wrapper {
-            padding: 30px;
-        }
 
-        .page-header {
-            margin-bottom: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .page-header h2 {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .breadcrumb {
-            background: transparent;
-            padding: 0;
-            margin: 0;
-        }
 
         .dashboard-card {
             background-color: #fff;
@@ -461,6 +449,37 @@
         .add-new-user i {
             margin-right: 5px;
         }
+        /* Responsive */
+        @media (max-width: 991px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+
+            .sidebar.active {
+                margin-left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .main-content.active {
+                margin-left: 250px;
+                width: calc(100% - 250px);
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .search-bar {
+                display: none;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -485,7 +504,7 @@
                     <a href="vehicle.html"><i class="fas fa-car"></i> Vehicles</a>
                 </li>
                 <li>
-                    <a href="packages.html"><i class="fas fa-car"></i> Package</a>
+                    <a href="packages.html"><i class="fas fa-car"></i> Packages</a>
                 </li>
                 <li>
                     <a href="offers.html"><i class="fas fa-gift"></i>Offers </a>
@@ -511,26 +530,27 @@
 
     <!-- Main Content -->
     <div class="main-content">
+        <!-- Topbar -->
         <div class="topbar">
             <div class="toggle-sidebar">
                 <i class="fas fa-bars"></i>
             </div>
             <div class="search-bar">
                 <form class="search-form">
-                    <input type="text" placeholder="Search...">
+                    <input type="text" placeholder="Search for destinations, bookings, customers...">
                     <button type="submit"><i class="fas fa-search"></i></button>
                 </form>
             </div>
             <div class="topbar-right">
                 <div class="notification">
                     <i class="fas fa-bell"></i>
-                    <span class="badge">3</span>
+                    <span class="badge">7</span>
                 </div>
                 <div class="user-profile">
-                    <img src="images/person_2.jpg" alt="Admin">
+                    <img src="/api/placeholder/50/50" alt="placeholder">
                     <div class="user-info">
-                        <h6>Mahesh</h6>
-                        <span>Administrator</span>
+                        <h6>Sarah Johnson</h6>
+                        <span>Agency Manager</span>
                     </div>
                 </div>
             </div>
@@ -572,23 +592,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
 <script src="assets/js/jquery-3.7.1.min.js"></script>
 
+
+
+
+
+<!-- Add this script at the end of your HTML file before the closing </body> tag -->
 <script>
     $(document).ready(function() {
         // Toggle sidebar
-        $('.toggle-sidebar').click(function() {
+        $('.toggle-sidebar').on('click', function() {
             $('.sidebar').toggleClass('active');
             $('.main-content').toggleClass('active');
         });
 
-        // Initialize tooltips (Bootstrap required)
-        if ($.fn.tooltip) {
-            $('[data-toggle="tooltip"]').tooltip();
-        }
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
     });
-</script>
-
-<!-- Add this script at the end of your HTML file before the closing </body> tag -->
-<script>
     $(document).ready(function() {
         // Load all users when page loads
         loadAllUsers();

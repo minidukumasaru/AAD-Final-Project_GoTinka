@@ -3,145 +3,568 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Package Details Form</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Manage Packages - GoTinka Travel Agency</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        .bg-image {
-            background-image: url('https://www.example.com/your-image.jpg');
-            background-size: cover;
-            background-position: center;
-            min-height: 100vh;
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFD166;
+            --success: #06D6A0;
+            --danger: #EF476F;
+            --warning: #FFD166;
+            --info: #118AB2;
+            --light: #f8f9fa;
+            --dark: #073B4C;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+
+        .dashboard-container {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
 
-        .form-container {
-            background-color: rgba(0, 0, 0, 0.6);
-            padding: 30px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 900px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: linear-gradient(to bottom, #073B4C, #118AB2);
+            position: fixed;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 999;
         }
 
-        h3 {
-            font-family: 'Arial', sans-serif;
-            font-weight: bold;
-            margin-bottom: 20px;
+        .sidebar-brand {
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .btn {
-            font-size: 16px;
-            padding: 12px;
-            font-weight: bold;
-            border-radius: 8px;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-            transition: 0.3s;
-        }
-
-        .form-label {
-            font-weight: bold;
+        .sidebar-brand a {
             color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
         }
 
-        .form-control {
-            border-radius: 8px;
-            padding: 12px;
+        .sidebar-brand a span {
+            color: var(--accent);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu ul li {
+            padding: 0;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu ul li a {
+            padding: 15px 25px;
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+            border-radius: 0 30px 30px 0;
+        }
+
+        .sidebar-menu ul li a:hover,
+        .sidebar-menu ul li.active a {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu ul li.active a {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-menu ul li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            width: calc(100% - var(--sidebar-width));
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s;
+        }
+
+        .topbar {
+            background-color: #fff;
+            height: 70px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .toggle-sidebar {
+            font-size: 20px;
+            margin-right: 20px;
+            cursor: pointer;
+            display: none;
+            color: var(--dark);
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        .search-form {
+            position: relative;
+        }
+
+        .search-form input {
+            width: 100%;
+            height: 45px;
+            border-radius: 50px;
+            border: 1px solid #eaeaea;
+            padding: 0 20px;
+            padding-left: 45px;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s;
+        }
+
+        .search-form input:focus {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .search-form button {
+            background: transparent;
+            border: none;
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .notification {
+            margin-right: 25px;
+            position: relative;
+        }
+
+        .notification i {
+            font-size: 20px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .notification .badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
+
+        .user-info {
+            line-height: 1.2;
+        }
+
+        .user-info h6 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-info span {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header h2 {
+            font-size: 26px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dashboard-card {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Package specific styling */
+        .package-card {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .package-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .active-package {
+            border-left: 5px solid var(--success);
+        }
+
+        .inactive-package {
+            border-left: 5px solid var(--danger);
         }
 
         .card-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            width: 80%;
-            margin-top: 40px;
+            gap: 15px;
         }
 
-        .credit-card {
-            background: #2a2a3a;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 250px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            cursor: pointer;
-            transition: transform 0.3s ease;
+        .package-card {
+            flex: 0 0 calc(33.333% - 15px);
         }
 
-        .credit-card:hover {
-            transform: scale(1.05);
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            border-radius: 50px;
+            padding: 8px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff5252;
+            border-color: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            border-color: var(--danger);
+            border-radius: 50px;
+            padding: 8px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-danger:hover {
+            background-color: #e5395e;
+            border-color: #e5395e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 71, 111, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            border-radius: 50px;
+            padding: 8px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+
+            .sidebar.active {
+                margin-left: 0;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .main-content.active {
+                margin-left: 250px;
+                width: calc(100% - 250px);
+            }
+
+            .toggle-sidebar {
+                display: block;
+            }
+
+            .package-card {
+                flex: 0 0 calc(50% - 15px);
+            }
+        }
+
+        @media (max-width: 767px) {
+            .search-bar {
+                display: none;
+            }
+
+            .package-card {
+                flex: 0 0 100%;
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="bg-image">
-    <div class="form-container">
-        <h3 class="text-white text-center">Package Details</h3>
-        <form id="packageForm">
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="packageName" class="form-label">Package Name</label>
-                    <input type="text" class="form-control" id="packageName" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="destination" class="form-label">Destination</label>
-                    <input type="text" class="form-control" id="destination" required>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label for="price" class="form-label">Price (LKR)</label>
-                    <input type="number" class="form-control" id="price" step="0.01" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="duration" class="form-label">Duration (Days)</label>
-                    <input type="number" class="form-control" id="duration" required>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" rows="3" required></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Status</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="active">
-                    <label class="form-check-label" for="active">Active</label>
-                </div>
-            </div>
-
-            <input type="text" id="packageId">
-
-            <div class="row text-center">
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-success w-100">Save</button>
-                </div>
-                <div class="col-md-4">
-                    <button type="button" class="btn btn-danger w-100" onclick="deletePackage()">Delete</button>
-                </div>
-                <div class="col-md-4">
-                    <button type="button" class="btn btn-secondary w-100" onclick="clearForm()">Clear</button>
-                </div>
-            </div>
-        </form>
+<div class="dashboard-container">
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <a href="dashboard.html">GO<span>Tinka</span></a>
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <li>
+                    <a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="admin-users.html"><i class="fas fa-users"></i> Users</a>
+                </li>
+                <li>
+                    <a href="guide.html"><i class="fas fa-user-tie"></i> Guides</a>
+                </li>
+                <li>
+                    <a href="vehicle.html"><i class="fas fa-car"></i> Vehicles</a>
+                </li>
+                <li class="active">
+                    <a href="packages.html"><i class="fas fa-box"></i> Packages</a>
+                </li>
+                <li>
+                    <a href="offers.html"><i class="fas fa-gift"></i>Offers </a>
+                </li>
+                <li>
+                    <a href="Payment.html"><i class="fas fa-credit-card"></i> Payment</a>
+                </li>
+                <li>
+                    <a href="Booking.html"><i class="fas fa-calendar-check"></i> Booking</a>
+                </li>
+                <li>
+                    <a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                </li>
+                <li>
+                    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+                </li>
+                <li>
+                    <a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <div class="card-container" id="packageList"></div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="search-bar">
+                <form class="search-form">
+                    <input type="text" placeholder="Search for destinations, bookings, customers...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            <div class="topbar-right">
+                <div class="notification">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">7</span>
+                </div>
+                <div class="user-profile">
+                    <img src="/api/placeholder/50/50" alt="placeholder">
+                    <div class="user-info">
+                        <h6>Sarah Johnson</h6>
+                        <span>Agency Manager</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h2>Package Management</h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Packages</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <div class="row">
+                <!-- Package Form Section -->
+                <div class="col-md-4">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="section-title mb-0">Add/Update Package</h5>
+                        </div>
+                        <form id="packageForm">
+                            <!-- Hidden input for tracking ID -->
+                            <input type="hidden" id="packageId">
+
+                            <div class="mb-3">
+                                <label for="packageName" class="form-label">Package Name</label>
+                                <input type="text" class="form-control" id="packageName" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="destination" class="form-label">Destination</label>
+                                <input type="text" class="form-control" id="destination" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="price" class="form-label">Price (LKR)</label>
+                                <input type="number" class="form-control" id="price" step="0.01" required min="0">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="duration" class="form-label">Duration (Days)</label>
+                                <input type="number" class="form-control" id="duration" required min="1">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" rows="3" required></textarea>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="active" checked>
+                                <label class="form-check-label" for="active">Active</label>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Save Package</button>
+                                <button type="button" class="btn btn-danger" onclick="deletePackage()">Delete Package</button>
+                                <button type="button" class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Package List Section -->
+                <div class="col-md-8">
+                    <div class="dashboard-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="section-title mb-0">Package List</h5>
+                            <input type="text" class="form-control w-50" id="searchPackage" placeholder="Search packages...">
+                        </div>
+                        <div id="packageList" class="card-container">
+                            <!-- Packages will be dynamically populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
 <script>
+    $(document).ready(function() {
+        // Toggle sidebar
+        $('.toggle-sidebar').on('click', function() {
+            $('.sidebar').toggleClass('active');
+            $('.main-content').toggleClass('active');
+        });
+
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+    });
     let authToken = localStorage.getItem("jwt_token");
 
 
@@ -230,11 +653,14 @@
                     const safeDescription = pkg.description.replace(/'/g, "\\'");
 
                     $("#packageList").append(`
-                        <div class="credit-card" onclick="fillForm(${pkg.packageId}, '${safeName}', '${safeDestination}', ${pkg.price}, '${safeDescription}', ${pkg.duration}, ${pkg.active})">
+                        <div class="package-card ${pkg.active ? 'active-package' : 'inactive-package'}" onclick="fillForm(${pkg.packageId}, '${safeName}', '${safeDestination}', ${pkg.price}, '${safeDescription}', ${pkg.duration}, ${pkg.active})">
                             <h5>${safeName}</h5>
                             <p>Destination: ${safeDestination}</p>
                             <p>Price: LKR ${pkg.price}</p>
                             <p>Duration: ${pkg.duration} days</p>
+                            <p><span class="badge ${pkg.active ? 'bg-success' : 'bg-danger'}">
+                                ${pkg.active ? 'Active' : 'Inactive'}
+                            </span></p>
                         </div>
                     `);
                 });
