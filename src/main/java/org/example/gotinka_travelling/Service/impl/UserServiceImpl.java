@@ -7,7 +7,9 @@ import org.example.gotinka_travelling.dto.UserDTO;
 import org.example.gotinka_travelling.entity.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,6 +43,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     public Long getUserCountByRoleUser() {
         return userRepository.countUsersByRoleUser();
     }
+
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -100,4 +105,17 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             return VarList.Not_Found;
         }
     }
+
+    @Override
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String email = authentication.getName();  // Get the email of the currently authenticated user
+            return userRepository.findByEmail(email);
+        }
+        throw new RuntimeException("User is not authenticated");
+    }
+
+
+
 }

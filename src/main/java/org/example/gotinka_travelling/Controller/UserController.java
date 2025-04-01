@@ -7,12 +7,17 @@ import org.example.gotinka_travelling.Service.UserService;
 import org.example.gotinka_travelling.Util.JwtUtil;
 import org.example.gotinka_travelling.Util.VarList;
 import jakarta.validation.Valid;
+import org.example.gotinka_travelling.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin
 @RestController

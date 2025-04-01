@@ -813,7 +813,7 @@
                     <img src="/api/placeholder/50/50" alt="placeholder">
                     <div class="user-info">
                         <h6>Sarah Johnson</h6>
-                        <span>Agency Manager</span>
+                        <span >Agency Manager</span>
                     </div>
                 </div>
             </div>
@@ -1175,11 +1175,15 @@
                 if (data.availableGuidesCount !== undefined) {
                     document.querySelector('.info-card h4').textContent = data.availableGuidesCount;
                 }
+                // Update the logged-in user's name and email
+                if (data.userName && data.userEmail) {
+                    document.querySelector('.user-profile h6').textContent = data.userName;
+                    document.querySelector('.user-profile span').textContent = data.userEmail;
+                }
             })
             .catch(error => {
                 console.error("Error fetching dashboard stats:", error);
             });
-
 
     }
 
