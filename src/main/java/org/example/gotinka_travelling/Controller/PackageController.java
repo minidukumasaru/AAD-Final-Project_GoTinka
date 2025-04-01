@@ -1,17 +1,28 @@
 package org.example.gotinka_travelling.Controller;
 
 import org.example.gotinka_travelling.Service.PackageService;
+import org.example.gotinka_travelling.Service.UserService;
+import org.example.gotinka_travelling.Util.JwtUtil;
 import org.example.gotinka_travelling.Util.ResponseUtil;
 import org.example.gotinka_travelling.dto.PackageDTO;
+import org.example.gotinka_travelling.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1/packages")
 public class PackageController {
+    private final UserService userService;
+
+    //constructor injection
+    public PackageController(UserService userService) {
+        this.userService = userService;
+    }
 
     @Autowired
     private PackageService packageService;
@@ -56,5 +67,16 @@ public class PackageController {
     public ResponseUtil deletePackage(@PathVariable int id) {
         packageService.deletePackage(id);
         return new ResponseUtil(200, "Package Deleted Successfully", null);
+    }
+    @GetMapping("/stats")
+    public Map<String, Object> getDashboardStats() {
+        Map<String, Object> stats = new HashMap<>();
+
+        // Get current logged-in user's details
+        User currentUser = userService.getCurrentUser();
+        stats.put("userName", currentUser.getName());
+        stats.put("userEmail", currentUser.getEmail());
+
+        return stats;
     }
 }

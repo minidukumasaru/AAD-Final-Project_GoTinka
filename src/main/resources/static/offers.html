@@ -459,8 +459,8 @@
                 <div class="user-profile">
                     <img src="/api/placeholder/50/50" alt="placeholder">
                     <div class="user-info">
-                        <h6>Sarah Johnson</h6>
-                        <span>Agency Manager</span>
+                        <h6>Loading....</h6>
+                        <span>Loading....</span>
                     </div>
                 </div>
             </div>
@@ -743,6 +743,41 @@
         $("#offerForm")[0].reset();
         $("#offerId").val("");
         $("#packageId").val("");
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchDashboardStats();
+
+        // Refresh dashboard stats every 30 seconds
+        setInterval(fetchDashboardStats, 30000);
+    });
+
+    function fetchDashboardStats() {
+        let authToken = localStorage.getItem("jwt_token");
+
+        fetch("http://localhost:8080/api/v1/offers/stats", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Update the logged-in user's name and email
+                if (data.userName && data.userEmail) {
+                    document.querySelector('.user-profile h6').textContent = data.userName;
+                    document.querySelector('.user-profile span').textContent = data.userEmail;
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching dashboard stats:", error);
+            });
+
     }
 
 </script>

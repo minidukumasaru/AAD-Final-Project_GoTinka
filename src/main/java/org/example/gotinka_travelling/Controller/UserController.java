@@ -92,6 +92,17 @@ public class UserController {
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/stats")
+    public Map<String, Object> getDashboardStats() {
+        Map<String, Object> stats = new HashMap<>();
+
+        // Get current logged-in user's details
+        User currentUser = userService.getCurrentUser();
+        stats.put("userName", currentUser.getName());
+        stats.put("userEmail", currentUser.getEmail());
+
+        return stats;
+    }
 
 
 

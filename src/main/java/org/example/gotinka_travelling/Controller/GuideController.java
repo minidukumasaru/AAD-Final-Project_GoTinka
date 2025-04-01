@@ -1,20 +1,30 @@
 package org.example.gotinka_travelling.Controller;
 
 import org.example.gotinka_travelling.Service.GuideService;
+import org.example.gotinka_travelling.Service.UserService;
+import org.example.gotinka_travelling.Util.JwtUtil;
 import org.example.gotinka_travelling.Util.ResponseUtil;
 import org.example.gotinka_travelling.dto.GuideDTO;
+import org.example.gotinka_travelling.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("api/v1/guide")
 public class GuideController {
+    private final UserService userService;
 
+    //constructor injection
+    public GuideController(UserService userService) {
+        this.userService = userService;
+    }
     @Autowired
     private GuideService guideService;
 
@@ -71,5 +81,16 @@ public class GuideController {
     public ResponseUtil deleteGuide(@PathVariable int id) {
         guideService.deleteGuide(id);
         return new ResponseUtil(200, "Guide Deleted Successfully", null);
+    }
+    @GetMapping("/stats")
+    public Map<String, Object> getDashboardStats() {
+        Map<String, Object> stats = new HashMap<>();
+
+        // Get current logged-in user's details
+        User currentUser = userService.getCurrentUser();
+        stats.put("userName", currentUser.getName());
+        stats.put("userEmail", currentUser.getEmail());
+
+        return stats;
     }
 }
