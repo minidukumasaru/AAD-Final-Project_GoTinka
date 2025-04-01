@@ -12,4 +12,5 @@ public interface UserService {
 
     List<UserDTO> getAllUsers();
     int deleteUser(String email);
+    Long getUserCountByRoleUser();
 }

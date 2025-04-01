@@ -27,6 +27,11 @@ public class GuideServiceImpl implements GuideService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    public GuideServiceImpl(GuideRepository guideRepository) {
+        this.guideRepo = guideRepository;
+    }
+
     @Value("${file.upload-dir:uploads/guides}")
     private String uploadDir;
 
@@ -118,5 +123,9 @@ public class GuideServiceImpl implements GuideService {
         Files.copy(file.getInputStream(), filePath);
 
         return uniqueFileName;
+    }
+    @Override
+    public Long getAvailableGuidesCount() {
+        return guideRepo.countAvailableGuides();
     }
 }

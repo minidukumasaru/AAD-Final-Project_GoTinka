@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -848,7 +848,7 @@
                 <div class="col-md-3">
                     <div class="dashboard-card stat-card success-card">
                         <div class="content">
-                            <h4>3,782</h4>
+                            <h4 th:text="${userCount }">0</h4>
                             <p>Active Customers</p>
                         </div>
                         <div class="icon">
@@ -859,7 +859,7 @@
                 <div class="col-md-3">
                     <div class="dashboard-card stat-card warning-card">
                         <div class="content">
-                            <h4>42</h4>
+                            <h4  th:text="${activePackagesCount}">0</h4>
                             <p>Active Packages</p>
                         </div>
                         <div class="icon">
@@ -870,11 +870,12 @@
                 <div class="col-md-3">
                     <div class="dashboard-card stat-card info-card">
                         <div class="content">
-                            <h4>$156,874</h4>
-                            <p>Monthly Revenue</p>
+                            <h4 th:text="${availableGuidesCount }">0</h4>
+                            <p>Active </p>
+                            <p >Guides</p>
                         </div>
                         <div class="icon">
-                            <i class="fas fa-dollar-sign"></i>
+                            <i class="fas fa-users"></i>
                         </div>
                     </div>
                 </div>
@@ -1139,6 +1140,49 @@
         // Initialize tooltips
         $('[data-toggle="tooltip"]').tooltip();
     });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchDashboardStats();
+
+        // Refresh dashboard stats every 30 seconds
+        setInterval(fetchDashboardStats, 30000);
+    });
+
+    function fetchDashboardStats() {
+        let authToken = localStorage.getItem("jwt_token");
+
+        fetch("http://localhost:8080/api/v1/dashboard/stats", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.activePackagesCount !== undefined) {
+                    document.querySelector(".warning-card h4").textContent = data.activePackagesCount;
+                }
+
+                if (data.userCount !== undefined) {
+                    document.querySelector(".success-card h4").textContent = data.userCount;
+                }
+
+                if (data.availableGuidesCount !== undefined) {
+                    document.querySelector('.info-card h4').textContent = data.availableGuidesCount;
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching dashboard stats:", error);
+            });
+
+
+    }
+
 </script>
 </body>
 </html>

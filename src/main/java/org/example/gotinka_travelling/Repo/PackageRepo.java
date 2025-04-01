@@ -15,4 +15,7 @@ import java.util.List;
         @Query("SELECT p.packageId FROM Packages p WHERE p.packageName =:name")
         Integer findPackageIdByNames(String name);
 
+        @Query("SELECT COUNT(p) FROM Packages p WHERE p.active = true AND p.isDeleted = false")
+        Long countActivePackages();
+
 }

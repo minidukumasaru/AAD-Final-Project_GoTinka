@@ -12,4 +12,5 @@ public interface PackageService {
     void deletePackage(int id);
     List<String> getPackageNames();
     Integer getPackageIdByNames(String name);
+    Long getActivePackagesCount();
 }

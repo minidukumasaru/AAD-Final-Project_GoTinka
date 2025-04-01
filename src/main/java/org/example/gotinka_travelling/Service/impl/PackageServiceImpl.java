@@ -78,4 +78,8 @@ public class PackageServiceImpl implements PackageService {
     public Integer getPackageIdByNames(String name) {
         return packageRepo.findPackageIdByNames(name);
     }
+    @Override
+    public Long getActivePackagesCount() {
+        return packageRepo.countActivePackages();
+    }
 }

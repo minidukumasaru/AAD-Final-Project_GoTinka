@@ -13,4 +13,5 @@ public interface GuideService {
     void updateGuide(int id, GuideDTO guideDTO);
     void updateGuideWithImage(int id, GuideDTO guideDTO, MultipartFile image);
     void deleteGuide(int id);
+    Long getAvailableGuidesCount();
 }

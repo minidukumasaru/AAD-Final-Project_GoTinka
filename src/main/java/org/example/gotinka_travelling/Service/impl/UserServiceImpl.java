@@ -31,6 +31,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public Long getUserCountByRoleUser() {
+        return userRepository.countUsersByRoleUser();
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         System.out.println(email);
