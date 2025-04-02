@@ -301,6 +301,25 @@
         .star-rating {
             color: gold;
         }
+         .page-header {
+             margin-bottom: 30px;
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+         }
+
+         .page-header h2 {
+             font-size: 26px;
+             font-weight: 600;
+             margin: 0;
+             color: var(--dark);
+         }
+
+         .breadcrumb {
+             background: transparent;
+             padding: 50;
+             margin: 0;
+         }
          /* Responsive */
          @media (max-width: 991px) {
              .sidebar {
@@ -406,7 +425,15 @@
         </div>
     </div>
 
-    <h2 class="mb-4">Tour Guide Management</h2>
+    <div class="page-header">
+        <h2>Tour Guide Management</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Guide</li>
+            </ol>
+        </nav>
+    </div>
 
     <div class="row">
         <!-- Guide Form Section -->

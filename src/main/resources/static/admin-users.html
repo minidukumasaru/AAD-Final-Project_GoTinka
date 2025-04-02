@@ -449,6 +449,24 @@
         .add-new-user i {
             margin-right: 5px;
         }
+        .breadcrumb {
+            background: transparent;
+            padding: 30;
+            margin: 0;
+        }
+        .page-header {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header h2 {
+            font-size: 26px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--dark);
+        }
         /* Responsive */
         @media (max-width: 991px) {
             .sidebar {
@@ -559,10 +577,18 @@
         <div class="content-wrapper">
             <div class="page-header">
                 <h2>User Management</h2>
-                <button class="add-new-user">
-                    <i class="fas fa-plus"></i> Add New User
-                </button>
+
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Users</li>
+                        </ol>
+                    </nav>
+
+
             </div>
+            <button class="add-new-user">
+                <i class="fas fa-plus"></i> Add New User</button>
 
             <div class="dashboard-card">
                 <div class="table-responsive">
