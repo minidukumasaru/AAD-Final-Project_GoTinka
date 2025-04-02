@@ -16,5 +16,6 @@ public class PackageDTO {
     private String description;
     private Integer duration; // Days
     private Boolean active;
+    private String imagePath;
     private boolean isDeleted = false;
 }

@@ -23,6 +23,7 @@ public class Packages {
     private String description;
     private Integer duration; // Days
     private Boolean active;
+    private String imagePath;
     private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "packages", cascade = CascadeType.ALL)

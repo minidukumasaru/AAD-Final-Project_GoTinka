@@ -353,6 +353,29 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
         }
+        .package-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            background-size: cover;
+            background-position: center;
+        }
+        .image-preview-placeholder {
+            font-size: 3rem;
+            color: #ccc;
+        }
 
         /* Responsive */
         @media (max-width: 991px) {
@@ -492,6 +515,21 @@
                             <h5 class="section-title mb-0">Add/Update Package</h5>
                         </div>
                         <form id="packageForm">
+                            <div class="mb-3">
+                                <div id="imagePreview" class="image-preview">
+                                    <div id="previewPlaceholder" class="image-preview-placeholder">
+                                        <i class="bi bi-person-circle"></i>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2 mb-3">
+                                    <button type="button" class="btn btn-secondary flex-grow-1" id="browseBtn">
+                                        <i class="bi bi-folder"></i> Browse
+                                    </button>
+                                </div>
+                                <input type="file" id="imageUpload" accept="image/*" style="display:none" capture="environment">
+                                <input type="hidden" id="imagePath" name="packageImagePath">
+                            </div>
                             <!-- Hidden input for tracking ID -->
                             <input type="hidden" id="packageId">
 
@@ -551,7 +589,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="assets/js/jquery-3.7.1.min.js"></script>
 <!-- Bootstrap JS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -564,20 +602,71 @@
 
         // Initialize tooltips
         $('[data-toggle="tooltip"]').tooltip();
+
+        // Load packages when page loads
+        loadPackages();
+
+        // Add a console log to check what case is being used in the API response
+        $.ajax({
+            url: "http://localhost:8080/api/v1/packages/getAll",
+            type: "GET",
+            headers: { "Authorization": `Bearer ${authToken}` },
+            success: function(response) {
+                if (response.data && response.data.length > 0) {
+                    console.log("Package object properties:", Object.keys(response.data[0]));
+                }
+            },
+            error: function(xhr) {
+                console.error("Error loading packages:", xhr);
+            }
+        });
+
+        // Handle image preview
+        $("#browseBtn").click(function() {
+            $("#imageUpload").click();
+        });
+
+        $("#imageUpload").change(function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $("#previewPlaceholder").hide();
+                    $("#imagePreview").css("background-image", `url(${e.target.result})`);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Attach event handlers for buttons
+        $("#saveBtn").on("click", function() {
+            $("#packageForm").submit();
+        });
+
+        $("#deleteBtn").on("click", function() {
+            deletePackage();
+        });
+
+        $("#clearBtn").on("click", function() {
+            clearForm();
+        });
     });
+
+    // Get authentication token
     let authToken = localStorage.getItem("jwt_token");
 
-
-    // Save or Update Package (Create or Update)
-    $("#packageForm").submit(function (event) {
+    // Save or Update Package
+    $("#packageForm").submit(function(event) {
         event.preventDefault();
 
         let packageId = $("#packageId").val().trim();
         let packageName = $("#packageName").val().trim();
         let destination = $("#destination").val().trim();
         let price = $("#price").val().trim();
-        let description = $("#description").val().trim();
         let duration = $("#duration").val().trim();
+        let description = $("#description").val().trim();
+        let active = $("#active").prop("checked");
+        let imagePath = $("#imagePath").val();
 
         // Validate required fields
         if (!packageName || !destination || !price || !description || !duration) {
@@ -585,97 +674,220 @@
             return;
         }
 
-        let apiUrl = "http://localhost:8080/api/v1/packages/save";
-        let methodType = "POST";
-        let requestData = { packageName, destination, price, description, duration, active: $("#active").prop("checked"), isDeleted: false };
+        // Create FormData object for file upload
+        const formData = new FormData();
 
-        if (packageId) { // If packageId exists, update instead of saving
-            apiUrl = `http://localhost:8080/api/v1/packages/update/${packageId}`;
-            methodType = "PUT";
-            requestData.packageId = packageId;
+        // Create the package object
+        const packageObj = {
+            packageName: packageName,
+            destination: destination,
+            price: parseFloat(price),
+            duration: parseInt(duration),
+            description: description,
+            active: active,
+            imagePath: imagePath
+        };
+
+        // Add package ID if updating
+        if (packageId && packageId !== "") {
+            packageObj.packageId = parseInt(packageId);
         }
 
+        // Add image if selected
+        const imageFile = $("#imageUpload")[0].files[0];
+        if (imageFile) {
+            formData.append("image", imageFile);
+        } else {
+            console.log("No new image selected, keeping the existing image.");
+        }
+
+        // Convert package object to JSON and add to FormData
+        // IMPORTANT: The key must match what the controller expects
+        formData.append("packages", new Blob([JSON.stringify(packageObj)], {
+            type: "application/json"
+        }));
+
+        console.log("Sending package data:", packageObj);
+
+        // Determine the API endpoint and method based on whether it's create or update
+        let apiUrl = packageId
+            ? `http://localhost:8080/api/v1/packages/updateWithImage/${packageId}`
+            : "http://localhost:8080/api/v1/packages/saveWithImage";
+
+        let methodType = packageId ? "PUT" : "POST";
+
+        // Make the AJAX request
         $.ajax({
             url: apiUrl,
             type: methodType,
-            contentType: "application/json",
-            data: JSON.stringify(requestData),
+            data: formData,
+            processData: false,
+            contentType: false,
             headers: { "Authorization": `Bearer ${authToken}` },
-            success: function () {
+            success: function(response) {
+                console.log("Success response:", response);
                 alert(packageId ? "Package updated successfully!" : "Package saved successfully!");
                 clearForm();
-                viewPackages();
+                loadPackages();
             },
-            error: function (xhr) {
-                alert("Operation failed: " + xhr.responseText);
-            },
+            error: function(xhr) {
+                console.error("Error response:", xhr.responseText);
+                alert("Operation failed: " + (xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText));
+            }
         });
     });
 
+    // Delete Package
     function deletePackage() {
         let packageId = $("#packageId").val().trim();
         if (!packageId) {
             alert("Please select a package to delete.");
             return;
         }
+
         if (!confirm("Are you sure you want to delete this package?")) {
             return;
         }
+
         $.ajax({
             url: `http://localhost:8080/api/v1/packages/delete/${packageId}`,
             type: "DELETE",
             headers: { "Authorization": `Bearer ${authToken}` },
-            success: function () {
+            success: function(response) {
+                console.log("Delete success:", response);
                 alert("Package deleted successfully!");
                 clearForm();
-                viewPackages();
+                loadPackages();
             },
-            error: function (xhr) {
-                alert("Delete failed: " + xhr.responseText);
-            },
+            error: function(xhr) {
+                console.error("Error response:", xhr.responseText);
+                alert("Delete failed: " + (xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText));
+            }
         });
     }
 
+    // Clear Form
+    function clearForm() {
+        $("#packageForm")[0].reset();
+        $("#packageId").val("");
+        $("#imagePath").val("");
+        $("#previewPlaceholder").show();
+        $("#imagePreview").css("background-image", "none");
+    }
 
+    // Helper function to safely get the package ID regardless of case
+    function getPackageId(pkg) {
+        // Try all possible case variations
+        return pkg.packageId || pkg.PackageId || pkg.Packageid || pkg.packageid || pkg.id || pkg.Id || "";
+    }
 
-    function viewPackages() {
+    // Fill Package Form when a card is clicked
+    function fillPackageForm(pkg) {
+        console.log("Filling form with package data:", pkg);
+
+        // Get the package ID using our helper function
+        const packageId = getPackageId(pkg);
+
+        $("#packageId").val(packageId);
+        $("#packageName").val(pkg.packageName);
+        $("#destination").val(pkg.destination);
+        $("#price").val(pkg.price);
+        $("#duration").val(pkg.duration);
+        $("#description").val(pkg.description);
+        $("#active").prop("checked", pkg.active);
+        $("#imagePath").val(pkg.imagePath || "");
+
+        // Update image preview if there's an image
+        if (pkg.imagePath) {
+            $("#previewPlaceholder").hide();
+            $("#imagePreview").css("background-image", `url(http://localhost:8080/uploads/packages/${pkg.imagePath})`);
+        } else {
+            $("#previewPlaceholder").show();
+            $("#imagePreview").css("background-image", "none");
+        }
+    }
+
+    // Load All Packages
+    function loadPackages() {
         $.ajax({
             url: "http://localhost:8080/api/v1/packages/getAll",
             type: "GET",
             headers: { "Authorization": `Bearer ${authToken}` },
-            success: function (response) {
+            success: function(response) {
+                console.log("Loaded packages:", response);
                 $("#packageList").empty();
 
-                response.data.forEach(pkg => {
-                    // Escape special characters in strings to prevent XSS
-                    const safeName = pkg.packageName.replace(/'/g, "\\'");
-                    const safeDestination = pkg.destination.replace(/'/g, "\\'");
-                    const safeDescription = pkg.description.replace(/'/g, "\\'");
+                if (!response.data || response.data.length === 0) {
+                    $("#packageList").html("<p class='text-center text-muted'>No packages found</p>");
+                    return;
+                }
 
+                response.data.forEach(pkg => {
+                    // Get the package ID using our helper function
+                    const packageId = getPackageId(pkg);
+
+                    // Create image path or use placeholder
+                    let imageSrc = pkg.imagePath
+                        ? `http://localhost:8080/uploads/packages/${pkg.imagePath}`
+                        : "/api/placeholder/400/300";
+
+                    // Create a JSON string for the package data, but escape all quotes
+                    const pkgJson = JSON.stringify(pkg).replace(/"/g, '&quot;');
+
+                    // Add a data attribute for package ID to simplify the process
                     $("#packageList").append(`
-                        <div class="package-card ${pkg.active ? 'active-package' : 'inactive-package'}" onclick="fillForm(${pkg.packageId}, '${safeName}', '${safeDestination}', ${pkg.price}, '${safeDescription}', ${pkg.duration}, ${pkg.active})">
-                            <h5>${safeName}</h5>
-                            <p>Destination: ${safeDestination}</p>
+                    <div class="package-item">
+                        <div class="package-card ${pkg.active ? 'active-package' : 'inactive-package'}"
+                             data-package-id="${packageId}">
+                            <img src="${imageSrc}" alt="${pkg.packageName}" class="package-image">
+                            <h5>${pkg.packageName}</h5>
+                            <p>Destination: ${pkg.destination}</p>
                             <p>Price: LKR ${pkg.price}</p>
                             <p>Duration: ${pkg.duration} days</p>
                             <p><span class="badge ${pkg.active ? 'bg-success' : 'bg-danger'}">
                                 ${pkg.active ? 'Active' : 'Inactive'}
                             </span></p>
                         </div>
-                    `);
+                    </div>
+                `);
+                });
+
+                // Add click event to package cards
+                $(".package-card").on("click", function() {
+                    const packageId = $(this).data("package-id");
+
+                    // Find the package using its ID
+                    $.ajax({
+                        url: `http://localhost:8080/api/v1/packages/get/${packageId}`,
+                        type: "GET",
+                        headers: { "Authorization": `Bearer ${authToken}` },
+                        success: function(response) {
+                            if (response.data) {
+                                fillPackageForm(response.data);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error("Error loading package details:", xhr.responseText);
+                            alert("Failed to load package details: " + (xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText));
+                        }
+                    });
                 });
             },
-            error: function (xhr) {
-                alert("Failed to load packages: " + xhr.responseText);
+            error: function(xhr) {
+                console.error("Error response:", xhr.responseText);
+                alert("Failed to load packages: " + (xhr.responseJSON ? xhr.responseJSON.message : xhr.responseText));
             }
         });
     }
+
     // Search functionality
     $("#searchPackage").on("keyup", function() {
         const searchText = $(this).val().toLowerCase();
-        $(".package-card").each(function() {
-            const PackageName = $(this).find("h5").text().toLowerCase();
-            if (PackageName.includes(searchText)) {
+        $(".package-item").each(function() {
+            const packageName = $(this).find("h5").text().toLowerCase();
+            const destination = $(this).find("p:contains('Destination')").text().toLowerCase();
+
+            if (packageName.includes(searchText) || destination.includes(searchText)) {
                 $(this).show();
             } else {
                 $(this).hide();
@@ -683,25 +895,7 @@
         });
     });
 
-    // Function to fill form when card is clicked
-    function fillForm(packageId, packageName, destination, price, description, duration, active) {
-        // Populate text input fields
-        $("#packageId").val(packageId);
-        $("#packageName").val(packageName);
-        $("#destination").val(destination);
-        $("#price").val(price);
-        $("#description").val(description);
-        $("#duration").val(duration);
-
-        // Set checkbox state based on active status
-        $("#active").prop('checked', active);
-    }
-
-
-    function clearForm() {
-        $("#packageForm")[0].reset();
-        $("#packageId").val("");
-    }
+    // Dashboard Stats
     document.addEventListener("DOMContentLoaded", function () {
         fetchDashboardStats();
 
@@ -735,11 +929,7 @@
             .catch(error => {
                 console.error("Error fetching dashboard stats:", error);
             });
-
     }
-
-    // Load packages when page loads
-    viewPackages();
 </script>
 
 </body>
