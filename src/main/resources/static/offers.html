@@ -298,6 +298,12 @@
         .offer-card {
             flex: 0 0 calc(50% - 15px);
         }
+        .available {
+            border-left: 5px solid #28a745;
+        }
+        .unavailable {
+            border-left: 5px solid #dc3545;
+        }
 
         .btn-primary {
             background-color: var(--primary);
@@ -347,6 +353,7 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(239, 71, 111, 0.3);
         }
+
 
         /* Responsive */
         @media (max-width: 991px) {
@@ -510,12 +517,17 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="offerId" class="form-label">Offer ID</label>
-                                <input type="text" class="form-control" id="offerId" readonly>
-                            </div>
-                            <div class="mb-3">
                                 <label for="packageId" class="form-label">Package ID</label>
                                 <input type="text" class="form-control" id="packageId" readonly>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="available" checked>
+                                <label class="form-check-label" for="available">Available</label>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="offerId" class="form-label">Offer ID</label>
+                                <input type="text" class="form-control" id="offerId" readonly>
                             </div>
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary" id="saveBtn">Save Offer</button>
@@ -616,7 +628,7 @@
         }
     });
 
-    // Save or Update Offer (Create or Update)
+    // Modified Save/Update function to explicitly include the available field
     $("#offerForm").submit(function (event) {
         event.preventDefault();
 
@@ -625,6 +637,8 @@
         let discountPercentage = $("#discountPercentage").val().trim();
         let validFrom = $("#validFrom").val().trim();
         let validUntil = $("#validUntil").val().trim();
+        // Explicitly get the boolean value from the checkbox
+        let available = $("#available").prop("checked");
         let packageId = $("#packageId").val().trim();
 
         if (!offerName || !discountPercentage || !validFrom || !validUntil || !packageId) {
@@ -634,7 +648,15 @@
 
         let apiUrl = "http://localhost:8080/api/v1/offers/save";
         let methodType = "POST";
-        let requestData = { offerName, discountPercentage, validFrom, validUntil, packageId };
+        // Include available field in the request data
+        let requestData = {
+            offerName,
+            discountPercentage,
+            validFrom,
+            validUntil,
+            packageId,
+            available
+        };
 
         if (offerId) { // If offerId exists, update instead of saving
             apiUrl = `http://localhost:8080/api/v1/offers/update/${offerId}`;
@@ -655,6 +677,7 @@
             },
             error: function (xhr) {
                 alert("Operation failed: " + xhr.responseText);
+                console.error("API Error:", xhr.responseText);
             },
         });
     });
@@ -685,7 +708,7 @@
         });
     }
 
-    // View Offers
+    // Modified viewOffers function to handle null available values
     function viewOffers() {
         $.ajax({
             url: "http://localhost:8080/api/v1/offers/getAll",
@@ -694,20 +717,22 @@
             success: function (response) {
                 $("#offerList").empty();
 
-
-
                 response.data.forEach(offer => {
-                    console.log("Offer ID:", offer.offerId);
-                    console.log("Package ID:", offer.packageId);
+                    // Handle null available value by defaulting to false
+                    const isAvailable = offer.available === true ? true : false;
+
                     $("#offerList").append(`
-                <div class="offer-card" onclick="fillOfferForm(${offer.offerId}, '${offer.offerName}', '${offer.discountPercentage}', '${offer.validFrom}', '${offer.validUntil}', '${offer.packageId}')">
-                    <h5>${offer.offerName}</h5>
-                    <p>Discount: ${offer.discountPercentage}%</p>
-                    <p>Package Id: ${offer.packageId}</p>
-                    <p>Valid From: ${offer.validFrom}</p>
-                    <p>Valid Until: ${offer.validUntil}</p>
-                </div>
-            `);
+                    <div class="offer-card ${isAvailable ? 'available' : 'unavailable'}" onclick="fillOfferForm(${offer.offerId}, '${offer.offerName}', '${offer.discountPercentage}', '${offer.validFrom}', '${offer.validUntil}', '${offer.packageId}', ${isAvailable})">
+                        <h5>${offer.offerName}</h5>
+                        <p>Discount: ${offer.discountPercentage}%</p>
+                        <p>Package Id: ${offer.packageId}</p>
+                        <p>Valid From: ${offer.validFrom}</p>
+                        <p>Valid Until: ${offer.validUntil}</p>
+                        <p><span class="badge ${isAvailable ? 'bg-success' : 'bg-danger'}">
+                                ${isAvailable ? 'Available' : 'Unavailable'}
+                            </span></p>
+                    </div>
+                `);
                 });
             },
             error: function (xhr) {
@@ -728,14 +753,27 @@
         });
     });
 
-    // Fill Offer Form when clicking an offer
-    function fillOfferForm(offerId, offerName, discountPercentage, validFrom, validUntil, packageId) {
+    // Modified fillOfferForm function to handle null available values
+    function fillOfferForm(offerId, offerName, discountPercentage, validFrom, validUntil, packageId, available) {
         $("#offerId").val(offerId);
         $("#offerName").val(offerName);
         $("#discountPercentage").val(discountPercentage);
         $("#validFrom").val(validFrom);
         $("#validUntil").val(validUntil);
         $("#packageId").val(packageId);
+        $("#available").prop("checked", available === true);
+
+        // Find and select the matching package in the dropdown
+        if (packageId) {
+            let packageDropdown = $("#packageName");
+            // First try direct matching by value
+            if (packageDropdown.find(`option[value="${packageId}"]`).length) {
+                packageDropdown.val(packageId);
+            } else {
+                // If not found, we could fetch the package name
+                // This is optional and depends on your API structure
+            }
+        }
     }
 
     // Clear Offer Form

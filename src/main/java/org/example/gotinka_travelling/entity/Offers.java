@@ -20,6 +20,7 @@ public class Offers {
     private Double discountPercentage;
     private LocalDate validFrom;
     private LocalDate validUntil;
+    private Boolean available;
     private boolean isDeleted = false;
 
     @ManyToOne

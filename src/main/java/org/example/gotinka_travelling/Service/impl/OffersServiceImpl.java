@@ -53,6 +53,7 @@ public class OffersServiceImpl implements OffersService {
         existingOffer.setDiscountPercentage(offersDTO.getDiscountPercentage());
         existingOffer.setValidFrom(offersDTO.getValidFrom());
         existingOffer.setValidUntil(offersDTO.getValidUntil());
+        existingOffer.setAvailable(offersDTO.getAvailable());
 
         Packages packages = packageRepo.findById(offersDTO.getPackageId())
                 .orElseThrow(() -> new RuntimeException("Package not found"));

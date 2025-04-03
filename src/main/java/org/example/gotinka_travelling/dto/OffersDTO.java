@@ -16,5 +16,6 @@ public class OffersDTO {
     private LocalDate validFrom;
     private LocalDate validUntil;
     private int packageId;
+    private Boolean available;
     private boolean isDeleted = false;
 }
