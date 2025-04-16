@@ -66,5 +66,6 @@ public class AuthController {
                 .body(new ResponseDTO(VarList.Created, "Success", authDTO));
     }
 
+
 }
 

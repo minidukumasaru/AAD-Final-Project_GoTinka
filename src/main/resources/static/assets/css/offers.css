@@ -1,0 +1,35 @@
+.offer-card {
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 1rem;
+}
+
+.offer-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.offer-card .card-body {
+    padding: 1.5rem;
+}
+
+.offer-card .card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.offer-card .card-text {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.offer-card .badge {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 576px) {
+    .offer-card .card-body {
+        padding: 1rem;
+    }
+}
